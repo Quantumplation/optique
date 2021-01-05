@@ -1,3 +1,9 @@
+#![feature(try_blocks)]
+
+mod options;
+use clap::Clap;
+use options::*;
+
 fn main() {
-    println!("Hello, world!");
+    let options: Options = Options::parse();
 }
