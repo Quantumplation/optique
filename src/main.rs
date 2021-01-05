@@ -1,6 +1,9 @@
 #![feature(try_blocks)]
 
 mod options;
+mod scene;
+mod geometry;
+mod render;
 use std::unimplemented;
 
 use clap::Clap;
