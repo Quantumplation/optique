@@ -1,11 +1,20 @@
+use enum_dispatch::enum_dispatch;
 use crate::scene::Scene;
 
-pub enum Integrator {
-  Null,
+#[enum_dispatch]
+pub trait Integrator {
+  fn render(&self, scene: &Scene);
 }
 
-impl Integrator {
-  pub fn Render(scene: &Scene) {
+#[enum_dispatch(Integrator)]
+pub enum IntegratorInstance {
+  NullIntegrator,
+}
+
+pub struct NullIntegrator {}
+
+impl Integrator for NullIntegrator {
+  fn render(&self, _scene: &Scene) {
     
   }
 }

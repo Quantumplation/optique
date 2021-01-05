@@ -1,15 +1,15 @@
 use crate::geometry::{Bounds3f, Ray, SurfaceInteraction};
 
-use super::{Light, Primitive};
+use super::{Light, LightInstance, NullPrimitive, Primitive, PrimitiveInstance};
 
 pub struct Scene {
-  lights: Vec<Light>,
-  root: Primitive,
+  lights: Vec<LightInstance>,
+  root: PrimitiveInstance,
   world_bounds: Bounds3f,
 }
 
 impl Scene {
-  pub fn new(root: Primitive, lights: Vec<Light>) -> Scene {
+  pub fn new(root: PrimitiveInstance, lights: Vec<LightInstance>) -> Scene {
     let world_bounds = root.bounds();
     let mut scene = Scene {
       lights: vec![],
@@ -27,8 +27,8 @@ impl Scene {
 
   pub fn from(scene: &pbrt_rs::Scene) -> Scene {
     Scene::new(
-      Primitive::Null,
-      scene.lights.iter().map(Light::from).collect(),
+      PrimitiveInstance::from(NullPrimitive {}),
+      scene.lights.iter().map(LightInstance::from).collect(),
     )
   }
 
