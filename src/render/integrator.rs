@@ -4,7 +4,7 @@ use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
 use crate::{geometry::{RayDifferential, SurfaceInteraction}, scene::Scene};
 
-use super::{Camera, CameraInstance, Sampler, SamplerInstance, Spectrum};
+use super::{Camera, CameraInstance, RadianceProblems, Sampler, SamplerInstance, Spectrum};
 
 #[enum_dispatch]
 pub trait Integrator {
@@ -61,6 +61,22 @@ impl<T: SamplerIntegrator> Integrator for T {
 
         // Sample light along the ray
         let l = if weight > 0. { self.light_along_ray(ray, scene, &sampler, 0) } else { Spectrum::default() };
+        use RadianceProblems::*;
+        let l = match l.is_valid() {
+          Some(HasNaNs) => {
+            println!("Not-A-Number radiance for pixel {:?}, setting pixel to black.", pixel);
+            Spectrum::default()
+          },
+          Some(NegativeLuminance) => {
+            println!("Negative luminance for pixel {:?}, setting pixel to black.", pixel);
+            Spectrum::default()
+          },
+          Some(InfiniteLuminance) => {
+            println!("Infinite luminance for pixel {:?}, setting pixel to black.", pixel);
+            Spectrum::default()
+          },
+          None => l,
+        };
 
         // And mix that sample onto our film
         film.add_sample(pixel, l, weight);
