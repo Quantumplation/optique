@@ -1,8 +1,10 @@
 mod ray;
 mod bounds;
 mod point;
+mod vector;
 mod surface_interaction;
 pub use ray::*;
 pub use bounds::*;
 pub use point::*;
+pub use vector::*;
 pub use surface_interaction::*;

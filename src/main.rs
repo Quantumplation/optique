@@ -4,10 +4,10 @@ mod geometry;
 mod options;
 mod render;
 mod scene;
-use std::{path::PathBuf, unimplemented};
+use std::{path::PathBuf, sync::Arc, unimplemented};
 
 use clap::Clap;
-use geometry::Point2;
+use geometry::{Point2, Point3};
 use options::*;
 use render::*;
 use scene::{Scene};
@@ -33,7 +33,10 @@ fn main() {
     let scene = Scene::from(&scene);
 
     let mut i = WhittedIntegrator::new(
-        CameraInstance::from(PerspectiveCamera { film: Film::new(Point2 { x: 100, y: 100 })}),
+        CameraInstance::from(PerspectiveCamera {
+            position: Point3 { x: 0., y: 0., z: 0. },
+            film: Arc::new(Film::new(Point2 { x: 100, y: 100 }))
+        }),
         SamplerInstance::from(NullSampler {}),
     );
     i.render(&scene);
