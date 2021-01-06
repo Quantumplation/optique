@@ -2,7 +2,6 @@ use enum_dispatch::enum_dispatch;
 
 #[enum_dispatch]
 pub trait Sampler {
-
 }
 
 #[enum_dispatch(Sampler)]

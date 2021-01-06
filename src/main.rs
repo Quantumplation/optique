@@ -7,6 +7,7 @@ mod scene;
 use std::unimplemented;
 
 use clap::Clap;
+use geometry::Point2;
 use options::*;
 use render::*;
 use scene::{NullPrimitive, PrimitiveInstance, Scene};
@@ -32,7 +33,7 @@ fn main() {
     let scene = Scene::from(&scene);
 
     let mut i = WhittedIntegrator::new(
-        CameraInstance::from(NullCamera {}),
+        CameraInstance::from(PerspectiveCamera { film: Film { resolution: Point2 { x: 100, y: 100 }}}),
         SamplerInstance::from(NullSampler {}),
     );
     i.render(&scene);

@@ -1,7 +1,8 @@
+use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
 use crate::{geometry::SurfaceInteraction, scene::Scene};
 
-use super::{CameraInstance, SamplerInstance};
+use super::{Camera, CameraInstance, SamplerInstance};
 
 #[enum_dispatch]
 pub trait Integrator {
@@ -24,7 +25,7 @@ impl Integrator for NullIntegrator {
 
 #[enum_dispatch]
 pub trait SamplerIntegrator {
-  fn preprocess(&mut self, scene: &Scene, sampler: &SamplerInstance);
+  fn preprocess(&mut self, scene: &Scene);
   fn light_along_ray(&self, /* RayDifferential, */ scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) /* -> Spectrum */;
   fn specular_reflect(&self, /* RayDifferential, */ surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) /* -> Spectrum */;
   fn specular_transmit(&self, /* RayDifferential, */ surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) /* -> Spectrum */;
@@ -35,7 +36,15 @@ pub trait SamplerIntegrator {
 
 impl<T: SamplerIntegrator> Integrator for T {
   fn render(&mut self, scene: &Scene) {
-    self.preprocess(scene, self.get_sampler());
+    self.preprocess(scene);
+    // TODO: Parallel tiles
+
+    // Allocate a memory arena for the image
+    let bounds = self.get_camera().bounds();
+    let mut arena = Bump::new();
+    for pixel in bounds {
+      println!("{:?}", pixel);
+    }
   }
 }
 
@@ -55,8 +64,7 @@ impl WhittedIntegrator {
 }
 
 impl SamplerIntegrator for WhittedIntegrator {
-  fn preprocess(&mut self, _scene: &Scene, sampler: &SamplerInstance) {
-    println!("Whitted preprocess");
+  fn preprocess(&mut self, _scene: &Scene) {
   }
 
   fn light_along_ray(&self, /* RayDifferential, */ scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) {

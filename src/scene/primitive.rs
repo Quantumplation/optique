@@ -1,8 +1,8 @@
 use enum_dispatch::enum_dispatch;
-use crate::geometry::Bounds3f;
+use crate::geometry::Bounds3;
 #[enum_dispatch]
 pub trait Primitive {
-  fn bounds(&self) -> Bounds3f;
+  fn bounds(&self) -> Bounds3<f32>;
 }
 
 #[enum_dispatch(Primitive)]
@@ -15,7 +15,7 @@ pub enum PrimitiveInstance {
 pub struct NullPrimitive {}
 
 impl Primitive for NullPrimitive {
-  fn bounds(&self) -> Bounds3f {
-    Bounds3f {}
+  fn bounds(&self) -> Bounds3<f32> {
+    Bounds3::default()
   }
 }

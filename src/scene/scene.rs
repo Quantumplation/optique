@@ -1,11 +1,11 @@
-use crate::geometry::{Bounds3f, Ray, SurfaceInteraction};
+use crate::geometry::{Bounds3, Ray, SurfaceInteraction};
 
 use super::{Light, LightInstance, NullPrimitive, Primitive, PrimitiveInstance};
 
 pub struct Scene {
   lights: Vec<LightInstance>,
   root: PrimitiveInstance,
-  world_bounds: Bounds3f,
+  world_bounds: Bounds3<f32>,
 }
 
 impl Scene {
