@@ -2,9 +2,9 @@ use std::sync::Arc;
 
 use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
-use crate::{geometry::SurfaceInteraction, scene::Scene};
+use crate::{geometry::{RayDifferential, SurfaceInteraction}, scene::Scene};
 
-use super::{Camera, CameraInstance, Sampler, SamplerInstance};
+use super::{Camera, CameraInstance, Sampler, SamplerInstance, Spectrum};
 
 #[enum_dispatch]
 pub trait Integrator {
@@ -28,9 +28,9 @@ impl Integrator for NullIntegrator {
 #[enum_dispatch]
 pub trait SamplerIntegrator {
   fn preprocess(&mut self, scene: &Scene);
-  fn light_along_ray(&self, /* RayDifferential, */ scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) -> f32 /* -> Spectrum */;
-  fn specular_reflect(&self, /* RayDifferential, */ surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) /* -> Spectrum */;
-  fn specular_transmit(&self, /* RayDifferential, */ surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) /* -> Spectrum */;
+  fn light_along_ray(&self, rd: RayDifferential, scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) -> Spectrum;
+  fn specular_reflect(&self, rd: RayDifferential, surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) -> Spectrum;
+  fn specular_transmit(&self, rd: RayDifferential, surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) -> Spectrum;
 
   fn get_camera(&mut self) -> Arc<CameraInstance>;
   fn get_sampler(&self, seed: u64) -> SamplerInstance;
@@ -60,7 +60,7 @@ impl<T: SamplerIntegrator> Integrator for T {
         ray.scale(factor);
 
         // Sample light along the ray
-        let l: f32 = if weight > 0. { self.light_along_ray(scene, &sampler, 0) } else { 0. };
+        let l = if weight > 0. { self.light_along_ray(ray, scene, &sampler, 0) } else { Spectrum::default() };
 
         // And mix that sample onto our film
         film.add_sample(pixel, l, weight);
@@ -95,15 +95,18 @@ impl SamplerIntegrator for WhittedIntegrator {
   fn preprocess(&mut self, _scene: &Scene) {
   }
 
-  fn light_along_ray(&self, /* RayDifferential, */ _scene: &Scene, _sampler: &SamplerInstance, /* Memory Arena, */ _depth: u32) -> f32 {
-    0.
+  fn light_along_ray(&self, rd: RayDifferential, _scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ _depth: u32) -> Spectrum {
+    let r = rd.ray.direction.x / 100.;
+    let g = rd.ray.direction.y / 100.;
+    let b = rd.ray.direction.z / 100.;
+    Spectrum { r, g, b }
   }
 
-  fn specular_reflect(&self, /* RayDifferential, */ _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, /* Memory Arena, */ _depth: u32) {
+  fn specular_reflect(&self, rd: RayDifferential, _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, /* Memory Arena, */ _depth: u32) -> Spectrum {
     todo!()
   }
 
-  fn specular_transmit(&self, /* RayDifferential, */ _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, /* Memory Arena, */ _depth: u32) {
+  fn specular_transmit(&self, rd: RayDifferential, _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, /* Memory Arena, */ _depth: u32) -> Spectrum {
     todo!()
   }
 
