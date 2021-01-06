@@ -2,12 +2,14 @@ use crate::geometry::{Bounds3, Ray, SurfaceInteraction};
 
 use super::{Light, LightInstance, NullPrimitive, Primitive, PrimitiveInstance};
 
+#[allow(dead_code)]
 pub struct Scene {
   lights: Vec<LightInstance>,
   root: PrimitiveInstance,
   world_bounds: Bounds3<f32>,
 }
 
+#[allow(dead_code)]
 impl Scene {
   pub fn new(root: PrimitiveInstance, lights: Vec<LightInstance>) -> Scene {
     let world_bounds = root.bounds();
@@ -32,11 +34,11 @@ impl Scene {
     )
   }
 
-  pub fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
+  pub fn intersect(&self, _ray: &Ray) -> Option<SurfaceInteraction> {
     None
   }
 
-  pub fn any_intersect(&self, ray: &mut Ray) -> bool {
+  pub fn any_intersect(&self, _ray: &mut Ray) -> bool {
     false
   }
 }

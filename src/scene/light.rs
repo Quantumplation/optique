@@ -19,5 +19,5 @@ impl From<&pbrt_rs::Light> for LightInstance {
 
 pub struct NullLight {}
 impl Light for NullLight {
-  fn preprocess(&mut self, scene: &Scene) {}
+  fn preprocess(&mut self, _scene: &Scene) {}
 }

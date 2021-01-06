@@ -18,7 +18,7 @@ impl Film {
   pub fn bounds(&self) -> Bounds2<i32> {
     Bounds2 { min: Default::default(), max: self.resolution }
   }
-  pub fn add_sample(&mut self, pixel: Point2<i32>, value: f32, weight: f32) {
+  pub fn add_sample(&mut self, pixel: Point2<i32>, value: f32, _weight: f32) {
     let idx = pixel.y * self.resolution.x + pixel.x;
     self.pixels[idx as usize] = value;
   }

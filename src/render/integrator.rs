@@ -78,15 +78,15 @@ impl SamplerIntegrator for WhittedIntegrator {
   fn preprocess(&mut self, _scene: &Scene) {
   }
 
-  fn light_along_ray(&self, /* RayDifferential, */ scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) {
+  fn light_along_ray(&self, /* RayDifferential, */ _scene: &Scene, _sampler: &SamplerInstance, /* Memory Arena, */ _depth: u32) {
     todo!()
   }
 
-  fn specular_reflect(&self, /* RayDifferential, */ surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) {
+  fn specular_reflect(&self, /* RayDifferential, */ _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, /* Memory Arena, */ _depth: u32) {
     todo!()
   }
 
-  fn specular_transmit(&self, /* RayDifferential, */ surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) {
+  fn specular_transmit(&self, /* RayDifferential, */ _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, /* Memory Arena, */ _depth: u32) {
     todo!()
   }
 

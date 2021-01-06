@@ -1,4 +1,4 @@
-use std::{num::ParseIntError, path::PathBuf, str::FromStr};
+use std::{path::PathBuf, str::FromStr};
 
 use clap::Clap;
 
