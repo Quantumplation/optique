@@ -7,20 +7,12 @@ use super::Film;
 #[enum_dispatch]
 pub trait Camera {
     fn bounds(&self) -> Bounds2<i32>;
+    fn film(&mut self) -> &mut Film;
 }
 
 #[enum_dispatch(Camera)]
 pub enum CameraInstance {
-  NullCamera,
   PerspectiveCamera,
-}
-
-pub struct NullCamera {}
-
-impl Camera for NullCamera {
-  fn bounds(&self) -> Bounds2<i32> {
-    Bounds2::default()
-  }
 }
 
 pub struct PerspectiveCamera {
@@ -30,5 +22,8 @@ pub struct PerspectiveCamera {
 impl Camera for PerspectiveCamera {
   fn bounds(&self) -> Bounds2<i32> {
     self.film.bounds()
+  }
+  fn film(&mut self) -> &mut Film {
+    &mut self.film
   }
 }

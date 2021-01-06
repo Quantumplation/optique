@@ -2,7 +2,7 @@ use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
 use crate::{geometry::SurfaceInteraction, scene::Scene};
 
-use super::{Camera, CameraInstance, SamplerInstance};
+use super::{Camera, CameraInstance, Sampler, SamplerInstance};
 
 #[enum_dispatch]
 pub trait Integrator {
@@ -30,8 +30,8 @@ pub trait SamplerIntegrator {
   fn specular_reflect(&self, /* RayDifferential, */ surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) /* -> Spectrum */;
   fn specular_transmit(&self, /* RayDifferential, */ surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, /* Memory Arena, */ depth: u32) /* -> Spectrum */;
 
-  fn get_camera(&self) -> &CameraInstance;
-  fn get_sampler(&self) -> &SamplerInstance;
+  fn get_camera(&mut self) -> &mut CameraInstance;
+  fn get_sampler(&self, seed: u64) -> SamplerInstance;
 }
 
 impl<T: SamplerIntegrator> Integrator for T {
@@ -39,11 +39,22 @@ impl<T: SamplerIntegrator> Integrator for T {
     self.preprocess(scene);
     // TODO: Parallel tiles
 
-    // Allocate a memory arena for the image
-    let bounds = self.get_camera().bounds();
     let mut arena = Bump::new();
+    let mut sampler = self.get_sampler(0);
+    let camera = self.get_camera();
+    let bounds = camera.bounds();
+    let film = camera.film();
     for pixel in bounds {
-      println!("{:?}", pixel);
+      sampler.start_pixel(&pixel);
+      loop {
+
+
+        film.add_sample(pixel, pixel.x as f32 / bounds.max.x as f32, 1.0);
+        arena.reset();
+        if !sampler.start_next() {
+          break;
+        }
+      }
     }
   }
 }
@@ -79,6 +90,6 @@ impl SamplerIntegrator for WhittedIntegrator {
     todo!()
   }
 
-  fn get_camera(&self) -> &CameraInstance { &self.camera }
-  fn get_sampler(&self) -> &SamplerInstance { &self.sampler }
+  fn get_camera(&mut self) -> &mut CameraInstance { &mut self.camera }
+  fn get_sampler(&self, _: u64) -> SamplerInstance { self.sampler.clone() }
 }

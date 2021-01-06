@@ -4,7 +4,7 @@ mod geometry;
 mod options;
 mod render;
 mod scene;
-use std::unimplemented;
+use std::{path::PathBuf, unimplemented};
 
 use clap::Clap;
 use geometry::Point2;
@@ -33,8 +33,9 @@ fn main() {
     let scene = Scene::from(&scene);
 
     let mut i = WhittedIntegrator::new(
-        CameraInstance::from(PerspectiveCamera { film: Film { resolution: Point2 { x: 100, y: 100 }}}),
+        CameraInstance::from(PerspectiveCamera { film: Film::new(Point2 { x: 100, y: 100 })}),
         SamplerInstance::from(NullSampler {}),
     );
     i.render(&scene);
+    i.camera.film().write_to(options.out_file.unwrap_or(PathBuf::from("./out.png")));
 }
