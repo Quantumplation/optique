@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Sub};
+use std::ops::{Add, Mul, Neg, Sub};
 
 use super::{Point2, Point3};
 
@@ -70,6 +70,14 @@ impl<T: Sub<Output = T>> Sub for Vector3<T> {
   fn sub(self, rhs: Self) -> Self::Output {
     Self::Output { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
   }
+}
+
+impl<T: Neg<Output = T>> Neg for Vector3<T> {
+    type Output = Vector3<T>;
+
+    fn neg(self) -> Self::Output {
+      Vector3 { x: -self.x, y: -self.y, z: -self.z }
+    }
 }
 
 impl<T: Mul<T, Output = T> + Copy> Mul<T> for Vector2<T> {

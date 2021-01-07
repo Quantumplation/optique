@@ -1,6 +1,6 @@
 use enum_dispatch::enum_dispatch;
 
-use crate::geometry::{Bounds3, Point3, Ray, SurfaceInteraction, Vector3};
+use crate::geometry::{Bounds3, InteractionCommon, Point3, Ray, SurfaceInteraction, Vector3};
 
 #[enum_dispatch]
 pub trait Shape {
@@ -46,7 +46,18 @@ impl Shape for SphereShape {
     if t_0 < 0. && t_1 < 0. {
       None
     } else {
-      Some(SurfaceInteraction {})
+      let point = ray.origin + (ray.direction * t_0);
+      let reverse_ray = -ray.direction;
+      let normal = Vector3::from(point - self.point);
+      Some(
+        SurfaceInteraction {
+          common: InteractionCommon { 
+            point,
+            reverse_ray,
+            normal,
+          }
+        }
+      )
     }
   }
 }

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
-use crate::{geometry::{RayDifferential, SurfaceInteraction}, scene::{Light, Scene}};
+use crate::{geometry::{RayDifferential, SurfaceInteraction, Vector3}, scene::{Light, Scene}};
 
 use super::{Camera, CameraInstance, RadianceProblems, Sampler, SamplerInstance, Spectrum};
 
@@ -124,8 +124,10 @@ impl SamplerIntegrator for WhittedIntegrator {
           result += light.background_radiance(&rd.ray);
         }
       },
-      Some(i) => {
-        result = Spectrum { r: 1., g: 1., b: 1. };
+      Some(interaction) => {
+        // Hack in a point light
+        let angle = interaction.common.normal.dot(Vector3 { x: 0.468, y: -0.468, z: -0.749 }).clamp(0., 10.) / 2.;
+        result = Spectrum { r: angle, g: angle, b: angle };
       }
     }
 

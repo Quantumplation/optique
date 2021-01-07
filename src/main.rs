@@ -1,4 +1,4 @@
-#![feature(try_blocks)]
+#![feature(try_blocks, clamp)]
 
 mod geometry;
 mod options;
