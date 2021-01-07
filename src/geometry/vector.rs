@@ -15,6 +15,22 @@ pub struct Vector3<T> {
   pub z: T,
 }
 
+impl Vector3<f32> {
+  pub fn length_squared(&self) -> f32 {
+    self.x * self.x + self.y * self.y + self.z * self.z
+  }
+  pub fn length(&self) -> f32 {
+    self.length_squared().sqrt()
+  }
+  pub fn normalized(&self) -> Vector3<f32> {
+    let len = self.length();
+    Vector3 { x: self.x / len, y: self.y / len, z: self.z / len }
+  }
+  pub fn dot(&self, rhs: Vector3<f32>) -> f32 {
+    self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+  }
+}
+
 impl<T> From<Point2<T>> for Vector2<T> {
   fn from(p: Point2<T>) -> Self {
     Vector2 { x: p.x, y: p.y }

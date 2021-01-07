@@ -15,11 +15,11 @@ use scene::{Scene};
 fn main() {
     let options: Options = Options::parse();
 
-    let (scene, _state) = if options.input_files.len() == 1 {
+    let (scene, _state) = if true || options.input_files.len() == 1 {
         let mut scene_info = pbrt_rs::Scene::default();
         let mut state = pbrt_rs::State::default();
         pbrt_rs::read_pbrt_file(
-            options.input_files[0].to_str().unwrap(),
+            "scenes/killeroo-simple/killeroo-simple.pbrt",
             &mut scene_info,
             &mut state,
         );
@@ -33,6 +33,7 @@ fn main() {
     let scene = Scene::from(&scene);
 
     let mut i = WhittedIntegrator::new(
+        1,
         CameraInstance::from(PerspectiveCamera {
             position: Point3 { x: 0., y: 0., z: 0. },
             film: Arc::new(Film::new(Point2 { x: 100, y: 100 }))

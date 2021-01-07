@@ -1,3 +1,5 @@
+use std::ops::{Add, AddAssign};
+
 #[derive(Debug, Copy, Clone, Default)]
 pub struct Spectrum {
   pub r: f32,
@@ -31,5 +33,21 @@ impl Spectrum {
         None
       }
     }
+  }
+}
+
+impl Add for Spectrum {
+  type Output = Self;
+
+  fn add(self, rhs: Self) -> Self::Output {
+    Self::Output { r: self.r + rhs.r, g: self.g + rhs.g, b: self.b + rhs.b }
+  }
+}
+
+impl AddAssign for Spectrum {
+  fn add_assign(&mut self, rhs: Self) {
+    self.r += rhs.r;
+    self.g += rhs.g;
+    self.b += rhs.b;
   }
 }

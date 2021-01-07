@@ -57,10 +57,11 @@ impl Camera for PerspectiveCamera {
     self.film.clone()
   }
   fn generate_ray(&self, sample: &CameraSample) -> (f32, Ray) {
+    let direction = Vector3 { x: (sample.film_point.x - 50.) / 100., y: (sample.film_point.y - 50.) / 100., z: 1. }.normalized();
     // TODO: perspective
     (1., Ray {
       origin: self.position,
-      direction: Vector3 { x: sample.film_point.x, y: sample.film_point.y, z: 0. },
+      direction,
     })
   }
 }
