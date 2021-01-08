@@ -36,7 +36,7 @@ fn main() {
             emission: None
         }),
         vec![
-            LightInstance::from(PointLight { position: Point3 { x: 1., y: -1., z: 7. }, color: Spectrum { r: 30., g: 0., b: 0. } })
+            LightInstance::from(PointLight { position: Point3 { x: 1., y: -2., z: 5. }, color: Spectrum { r: 10., g: 0., b: 0. } })
         ],
     );
 
