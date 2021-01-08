@@ -49,12 +49,14 @@ impl Shape for SphereShape {
       None
     } else {
       let point = ray.origin + (ray.direction * t_0);
+      let distance = t_0;
       let reverse_ray = -ray.direction;
       let normal = Vector3::from(point - self.point);
       Some(
         SurfaceInteraction {
           common: InteractionCommon { 
             point,
+            distance,
             reverse_ray,
             normal,
           },

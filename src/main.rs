@@ -10,7 +10,7 @@ use clap::Clap;
 use geometry::{Point2, Point3};
 use options::*;
 use render::*;
-use scene::{AreaLight, GeometricPrimitive, LightInstance, PointLight, PrimitiveInstance, Scene, ShapeInstance, SphereShape};
+use scene::{AreaLight, GeometricPrimitive, LightInstance, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
 
 fn main() {
     let options: Options = Options::parse();
@@ -31,10 +31,24 @@ fn main() {
     };
 
     let scene = Scene::new(
-        PrimitiveInstance::from(GeometricPrimitive {
-            shape: ShapeInstance::from(SphereShape { point: Point3 { x: 0., y: 0., z: 10. }, radius: 2. }),
-            emission: None
-        }),
+        PrimitiveInstance::from(
+            PrimitiveList {
+                primitives: vec![
+                    PrimitiveInstance::from(GeometricPrimitive {
+                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 0., y: 0., z: 10. }, radius: 2. }),
+                        emission: None
+                    }),
+                    PrimitiveInstance::from(GeometricPrimitive {
+                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 3., y: 0., z: 10. }, radius: 1. }),
+                        emission: None
+                    }),
+                    PrimitiveInstance::from(GeometricPrimitive {
+                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: -3., y: -1., z: 8. }, radius: 1. }),
+                        emission: None
+                    }),
+                ]
+            }
+        ),
         vec![
             LightInstance::from(PointLight { position: Point3 { x: 1., y: -2., z: 5. }, color: Spectrum { r: 10., g: 0., b: 0. } })
         ],
