@@ -2,6 +2,8 @@ use enum_dispatch::enum_dispatch;
 
 use crate::geometry::{Bounds3, InteractionCommon, Point3, Ray, SurfaceInteraction, Vector3};
 
+use super::PrimitiveInstance;
+
 #[enum_dispatch]
 pub trait Shape {
   fn bounds(&self) -> Bounds3<f32>;
@@ -55,7 +57,8 @@ impl Shape for SphereShape {
             point,
             reverse_ray,
             normal,
-          }
+          },
+          emissive_properties: None,
         }
       )
     }

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
-use crate::{geometry::{RayDifferential, SurfaceInteraction, Vector3}, scene::{Light, Scene}};
+use crate::{geometry::{Point2, Point3, RayDifferential, SurfaceInteraction, Vector3}, scene::{Light, Scene}};
 
 use super::{Camera, CameraInstance, RadianceProblems, Sampler, SamplerInstance, Spectrum};
 
@@ -116,19 +116,30 @@ impl SamplerIntegrator for WhittedIntegrator {
 
     let mut result = Spectrum::default();
 
-    match scene.intersect(&rd.ray) {
-      None => {
-        // Since we didn't hit anything, add the background radiance from each light
-        // This lets us add ambient lighting effects
-        for light in &scene.lights {
-          result += light.background_radiance(&rd.ray);
-        }
-      },
-      Some(interaction) => {
-        // Hack in a point light
-        let angle = interaction.common.normal.dot(Vector3 { x: 0.468, y: -0.468, z: -0.749 }).clamp(0., 10.) / 2.;
-        result = Spectrum { r: angle, g: angle, b: angle };
+    let interaction = scene.intersect(&rd.ray);
+    if interaction.is_none() {
+      // Since we didn't hit anything, add the background radiance from each light
+      // This lets us add ambient lighting effects
+      for light in &scene.lights {
+        result += light.background_radiance(&rd.ray);
       }
+      return result;
+    }
+
+    let interaction = interaction.unwrap();
+    // If we hit something, it might be emitting it's own light, so add in that contribution
+    result += interaction.emitted_radiance();
+
+    // Now add in the contribution from each light source
+    for light in &scene.lights {
+      // TODO: pick a point to sample
+      let radiance_sample = light.sample_radiance(&interaction, Point2::<f32>::default());
+      if radiance_sample.color.is_black() || radiance_sample.probability_distribution == 0. {
+        continue;
+      }
+
+      let contribution = radiance_sample.incident_direction.dot(interaction.common.normal).abs() / radiance_sample.probability_distribution;
+      result += radiance_sample.color * contribution;
     }
 
     return result;

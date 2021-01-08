@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign};
+use std::ops::{Add, AddAssign, Div, Mul};
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct Spectrum {
@@ -34,6 +34,10 @@ impl Spectrum {
       }
     }
   }
+  
+  pub fn is_black(&self) -> bool {
+    self.r == 0. && self.g == 0. && self.b == 0.
+  }
 }
 
 impl Add for Spectrum {
@@ -49,5 +53,19 @@ impl AddAssign for Spectrum {
     self.r += rhs.r;
     self.g += rhs.g;
     self.b += rhs.b;
+  }
+}
+
+impl Mul<f32> for Spectrum {
+  type Output = Self;
+  fn mul(self, s: f32) -> Self::Output {
+    Self::Output { r: s * self.r, g: s * self.g, b: s * self.b }
+  }
+}
+
+impl Div<f32> for Spectrum {
+  type Output = Self;
+  fn div(self, s: f32) -> Self::Output {
+    Self::Output { r: self.r / s, g: self.g / s, b: self.b / s }
   }
 }

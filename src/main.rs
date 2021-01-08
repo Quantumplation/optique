@@ -10,7 +10,7 @@ use clap::Clap;
 use geometry::{Point2, Point3};
 use options::*;
 use render::*;
-use scene::{Scene};
+use scene::{AreaLight, GeometricPrimitive, LightInstance, PointLight, PrimitiveInstance, Scene, ShapeInstance, SphereShape};
 
 fn main() {
     let options: Options = Options::parse();
@@ -30,7 +30,15 @@ fn main() {
         unimplemented!("Reading multiple files is currently unimplemented!");
     };
 
-    let scene = Scene::from(&scene);
+    let scene = Scene::new(
+        PrimitiveInstance::from(GeometricPrimitive {
+            shape: ShapeInstance::from(SphereShape { point: Point3 { x: 0., y: 0., z: 10. }, radius: 2. }),
+            emission: None
+        }),
+        vec![
+            LightInstance::from(PointLight { position: Point3 { x: 1., y: -1., z: 7. }, color: Spectrum { r: 30., g: 0., b: 0. } })
+        ],
+    );
 
     let mut i = WhittedIntegrator::new(
         1,

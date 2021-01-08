@@ -1,6 +1,6 @@
-use crate::geometry::{Bounds3, Point3, Ray, SurfaceInteraction};
+use crate::{geometry::{Bounds3, Point3, Ray, SurfaceInteraction}, render::Spectrum};
 
-use super::{GeometricPrimitive, Light, LightInstance, NullPrimitive, Primitive, PrimitiveInstance, ShapeInstance, SphereShape};
+use super::{AreaLight, GeometricPrimitive, Light, LightInstance, Primitive, PrimitiveInstance, ShapeInstance, SphereShape};
 
 #[allow(dead_code)]
 pub struct Scene {
@@ -30,7 +30,8 @@ impl Scene {
   pub fn from(scene: &pbrt_rs::Scene) -> Scene {
     Scene::new(
       PrimitiveInstance::from(GeometricPrimitive {
-        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 0., y: 0., z: 10. }, radius: 2. })
+        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 0., y: 0., z: 10. }, radius: 2. }),
+        emission: Some(AreaLight { emitted_color: Spectrum { r: 0.3, g: 0., b: 0. } }),
       }),
       scene.lights.iter().map(LightInstance::from).collect(),
     )
