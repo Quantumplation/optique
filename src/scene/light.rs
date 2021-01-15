@@ -1,4 +1,4 @@
-use crate::{geometry::{Point2, Point3, Ray, SurfaceInteraction, Vector2, Vector3}, render::Spectrum};
+use crate::{geometry::{InteractionCommon, Point2, Point3, Ray, SurfaceInteraction, Vector3}, render::Spectrum};
 
 use super::Scene;
 use enum_dispatch::enum_dispatch;
@@ -8,7 +8,7 @@ pub struct RadianceSample {
   pub color: Spectrum,
   pub incident_direction: Vector3<f32>,
   pub probability_distribution: f32,
-  /* VisibilityTester */
+  pub interactions: (InteractionCommon, InteractionCommon)
 }
 
 #[enum_dispatch]
@@ -55,10 +55,16 @@ impl Light for PointLight {
     let offset = Vector3::from(self.position - interaction.common.point);
     let incident_direction = offset.normalized();
     let color = self.color / offset.length_squared();
+    let light_interaction = InteractionCommon {
+      point: self.position,
+      distance: offset.length(),
+      ..Default::default()
+    };
     return RadianceSample {
       color,
       incident_direction,
       probability_distribution: 1.,
+      interactions: (interaction.common.clone(), light_interaction),
     }
   }
 }

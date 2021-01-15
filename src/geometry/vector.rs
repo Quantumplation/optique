@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Neg, Sub};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use super::{Point2, Point3};
 
@@ -16,6 +16,9 @@ pub struct Vector3<T> {
 }
 
 impl Vector3<f32> {
+  pub fn new(x: f32, y: f32, z: f32) -> Self {
+    Vector3 { x, y, z }
+  }
   pub fn length_squared(&self) -> f32 {
     self.x * self.x + self.y * self.y + self.z * self.z
   }
@@ -90,5 +93,18 @@ impl<T: Mul<T, Output = T> + Copy> Mul<T> for Vector3<T> {
   type Output = Self;
   fn mul(self, s: T) -> Self::Output {
     Self::Output { x: s * self.x, y: s * self.y, z: s * self.z }
+  }
+}
+
+impl<T: Div<T, Output = T> + Copy> Div<T> for Vector2<T> {
+  type Output = Self;
+  fn div(self, s: T) -> Self::Output {
+    Self::Output { x: self.x / s, y: self.y / s }
+  }
+}
+impl<T: Div<T, Output = T> + Copy> Div<T> for Vector3<T> {
+  type Output = Self;
+  fn div(self, s: T) -> Self::Output {
+    Self::Output { x: self.x / s, y: self.y / s, z: self.z / s }
   }
 }

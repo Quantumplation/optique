@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use enum_dispatch::enum_dispatch;
 
-use crate::geometry::{Bounds2, Point3, Ray, RayDifferential, Vector3};
+use crate::geometry::{Bounds2, Point3, Ray, RayDifferential, Transform, Vector3};
 
 use super::{CameraSample, Film};
 
@@ -46,7 +46,67 @@ pub enum CameraInstance {
 
 pub struct PerspectiveCamera {
   pub film: Arc<Film>,
-  pub position: Point3<f32>,
+  pub camera_to_world: Transform,
+  pub camera_to_screen: Transform,
+  pub raster_to_camera: Transform,
+  pub screen_to_raster: Transform,
+  pub raster_to_screen: Transform,
+  pub shutter_open: f32,
+  pub shutter_close: f32,
+  pub lens_radius: f32,
+  pub focal_distance: f32,
+  pub pixel_ray_dx: Vector3<f32>,
+  pub pixel_ray_dy: Vector3<f32>,
+  pub view_area: f32,
+}
+
+impl PerspectiveCamera {
+  pub fn new(
+    camera_to_world: Transform, bounds: Bounds2<f32>,
+    shutter_open: f32, shutter_close: f32, lens_radius: f32, focal_distance: f32,
+    field_of_view: f32,
+    film: Arc<Film>
+  ) -> Self {
+    let camera_to_screen = Transform::perspective(field_of_view, 0.01, 1000.);
+
+    let resolution = film.bounds().max;
+    let resolution_scale = Transform::scale(Vector3::new(resolution.x as f32, resolution.y as f32, 1.));
+    let screen_scale = Transform::scale(Vector3::new(
+      1. / (bounds.max.x - bounds.min.x),
+      1. / (bounds.max.y - bounds.min.y),
+      1.
+    ));
+    let translate = Transform::translate(Vector3::new(-bounds.min.x, -bounds.min.y, 0.));
+    let screen_to_raster = resolution_scale * screen_scale * translate;
+    let raster_to_screen = screen_to_raster.inverse();
+    let raster_to_camera = camera_to_screen.inverse() * raster_to_screen;
+
+    let zero = Vector3::default();
+    let dx = Vector3::new(1., 0., 0.);
+    let dy = Vector3::new(0., 1., 0.);
+    let pixel_ray_dx: Vector3<_> = (raster_to_camera * dx) - (raster_to_camera * zero);
+    let pixel_ray_dy: Vector3<_> = (raster_to_camera * dy) - (raster_to_camera * zero);
+    
+    let camera_min: Vector3<_> = raster_to_camera * zero;
+    let camera_max: Vector3<_> = raster_to_camera * Vector3::new(resolution.x as f32, resolution.y as f32, 0.);
+    let near_min: Vector3<_> = camera_min / camera_min.z;
+    let near_max: Vector3<_> = camera_max / camera_max.z;
+    let view_area = ((near_max.x - near_min.x) * (near_max.y - near_min.y)).abs();
+
+    PerspectiveCamera {
+      film,
+      shutter_open, shutter_close,
+      lens_radius, focal_distance,
+      camera_to_world,
+      camera_to_screen,
+      screen_to_raster,
+      raster_to_screen,
+      raster_to_camera,
+      pixel_ray_dx,
+      pixel_ray_dy,
+      view_area,
+    }
+  }
 }
 
 impl Camera for PerspectiveCamera {
@@ -57,11 +117,14 @@ impl Camera for PerspectiveCamera {
     self.film.clone()
   }
   fn generate_ray(&self, sample: &CameraSample) -> (f32, Ray) {
-    let direction = Vector3 { x: (sample.film_point.x - 50.) / 100., y: (sample.film_point.y - 50.) / 100., z: 1. }.normalized();
-    // TODO: perspective
-    (1., Ray {
-      origin: self.position,
-      direction,
-    })
+    let point_raster = Point3::new(sample.film_point.x, sample.film_point.y, 0.);
+    let point_camera = self.raster_to_camera * point_raster;
+    let direction = Vector3::from(point_camera).normalized();
+    let ray = Ray { origin: Point3::default(), direction };
+    if self.lens_radius > 0. {
+      unimplemented!("Depth of field is not implemented yet");
+    }
+    let ray = self.camera_to_world * ray;
+    (1., ray)
   }
 }

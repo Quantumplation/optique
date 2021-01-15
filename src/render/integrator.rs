@@ -137,9 +137,15 @@ impl SamplerIntegrator for WhittedIntegrator {
       if radiance_sample.color.is_black() || radiance_sample.probability_distribution == 0. {
         continue;
       }
+      
+      // TODO: evaluate bsdf
 
-      let contribution = radiance_sample.incident_direction.dot(interaction.common.normal).abs() / radiance_sample.probability_distribution;
-      result += radiance_sample.color * contribution;
+      // TODO: occlusion testing
+      let visible = true; // scene.any_intersect(&radiance_sample.interactions.0.ray_between(&radiance_sample.interactions.1));
+      if visible {
+        let contribution = radiance_sample.incident_direction.dot(interaction.common.normal).abs() / radiance_sample.probability_distribution;
+        result += radiance_sample.color * contribution;
+      }
     }
 
     return result;

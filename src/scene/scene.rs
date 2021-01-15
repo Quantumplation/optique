@@ -41,7 +41,8 @@ impl Scene {
     self.root.intersect(&ray)
   }
 
-  pub fn any_intersect(&self, _ray: &mut Ray) -> bool {
-    false
+  pub fn any_intersect(&self, ray: &Ray) -> bool {
+    // TODO: optimize
+    self.root.intersect(&ray).is_some()
   }
 }

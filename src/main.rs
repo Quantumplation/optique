@@ -7,7 +7,7 @@ mod scene;
 use std::{path::PathBuf, sync::Arc, unimplemented};
 
 use clap::Clap;
-use geometry::{Point2, Point3};
+use geometry::{Bounds2, Point2, Point3, Transform};
 use options::*;
 use render::*;
 use scene::{AreaLight, GeometricPrimitive, LightInstance, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
@@ -35,31 +35,36 @@ fn main() {
             PrimitiveList {
                 primitives: vec![
                     PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 0., y: 0., z: 10. }, radius: 2. }),
+                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 0., y: 0., z: -10. }, radius: 2. }),
                         emission: None
                     }),
                     PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 3., y: 0., z: 10. }, radius: 1. }),
+                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 0., y: 0., z: -10. }, radius: 2. }),
                         emission: None
                     }),
                     PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: -3., y: -1., z: 8. }, radius: 1. }),
+                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 3., y: 0., z: -10. }, radius: 1. }),
+                        emission: None
+                    }),
+                    PrimitiveInstance::from(GeometricPrimitive {
+                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: -3., y: -1., z: -8. }, radius: 1. }),
                         emission: None
                     }),
                 ]
             }
         ),
         vec![
-            LightInstance::from(PointLight { position: Point3 { x: 1., y: -2., z: 5. }, color: Spectrum { r: 10., g: 0., b: 0. } })
+            LightInstance::from(PointLight { position: Point3 { x: 1., y: -2., z: -5. }, color: Spectrum { r: 10., g: 0., b: 0. } })
         ],
     );
 
     let mut i = WhittedIntegrator::new(
         1,
-        CameraInstance::from(PerspectiveCamera {
-            position: Point3 { x: 0., y: 0., z: 0. },
-            film: Arc::new(Film::new(Point2 { x: 100, y: 100 }))
-        }),
+        CameraInstance::from(PerspectiveCamera::new(
+            Transform::default(), Bounds2 { min: Point2 { x: -0.5, y: -0.5 }, max: Point2 { x: 0.5, y: 0.5 } },
+            0., 0., 0., 0., 30.,
+            Arc::new(Film::new(Point2 { x: 100, y: 100 }))
+        )),
         SamplerInstance::from(NullSampler {}),
     );
     i.render(&scene);

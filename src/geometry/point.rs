@@ -7,11 +7,24 @@ pub struct Point2<T> {
   pub x: T,
   pub y: T,
 }
+
+impl<T> Point2<T> {
+  pub fn new(x: T, y: T) -> Self {
+    Point2 { x, y }
+  }
+}
+
 #[derive(Default, Copy, Clone, Debug)]
 pub struct Point3<T> {
   pub x: T,
   pub y: T,
   pub z: T
+}
+
+impl<T> Point3<T> {
+  pub fn new(x: T, y: T, z: T) -> Self {
+    Point3 { x, y, z }
+  }
 }
 
 impl From<Point2<i32>> for Point2<f32> {
