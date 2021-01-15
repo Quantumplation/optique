@@ -10,12 +10,12 @@ use clap::Clap;
 use geometry::{Bounds2, Point2, Point3, Transform};
 use options::*;
 use render::*;
-use scene::{AreaLight, GeometricPrimitive, LightInstance, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
+use scene::{GeometricPrimitive, LightInstance, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
 
 fn main() {
     let options: Options = Options::parse();
 
-    let (scene, _state) = if true || options.input_files.len() == 1 {
+    let (_scene, _state) = if true || options.input_files.len() == 1 {
         let mut scene_info = pbrt_rs::Scene::default();
         let mut state = pbrt_rs::State::default();
         pbrt_rs::read_pbrt_file(

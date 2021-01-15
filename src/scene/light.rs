@@ -75,11 +75,11 @@ pub struct AreaLight {
 }
 
 impl Light for AreaLight {
-    fn preprocess(&mut self, scene: &Scene) {}
+    fn preprocess(&mut self, _scene: &Scene) {}
 
     fn power(&self) -> Spectrum { Spectrum::default() }
-    fn background_radiance(&self, ray: &Ray) -> Spectrum { Spectrum::default() }
-    fn sample_radiance(&self, interaction: &SurfaceInteraction, point: Point2<f32>) -> RadianceSample { RadianceSample::default() }
+    fn background_radiance(&self, _ray: &Ray) -> Spectrum { Spectrum::default() }
+    fn sample_radiance(&self, _interaction: &SurfaceInteraction, _point: Point2<f32>) -> RadianceSample { RadianceSample::default() }
 }
 
 impl AreaLight {

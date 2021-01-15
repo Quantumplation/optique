@@ -9,6 +9,7 @@ pub struct Point2<T> {
 }
 
 impl<T> Point2<T> {
+  #[allow(dead_code)]
   pub fn new(x: T, y: T) -> Self {
     Point2 { x, y }
   }

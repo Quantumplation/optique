@@ -1,4 +1,4 @@
-use std::{ops::Mul, sync::Arc};
+use std::{ops::Mul};
 
 #[derive(Copy, Clone)]
 pub struct Matrix4x4 {

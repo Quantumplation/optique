@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
-use crate::{geometry::{Point2, Point3, RayDifferential, SurfaceInteraction, Vector3}, scene::{Light, Scene}};
+use crate::{geometry::{Point2, RayDifferential, SurfaceInteraction}, scene::{Light, Scene}};
 
 use super::{Camera, CameraInstance, RadianceProblems, Sampler, SamplerInstance, Spectrum};
 
@@ -112,7 +112,7 @@ impl SamplerIntegrator for WhittedIntegrator {
   fn preprocess(&mut self, _scene: &Scene) {
   }
 
-  fn light_along_ray(&self, rd: RayDifferential, scene: &Scene, sampler: &SamplerInstance, arena: &Bump, _depth: u32) -> Spectrum {
+  fn light_along_ray(&self, rd: RayDifferential, scene: &Scene, _sampler: &SamplerInstance, _arena: &Bump, _depth: u32) -> Spectrum {
 
     let mut result = Spectrum::default();
 
@@ -151,11 +151,11 @@ impl SamplerIntegrator for WhittedIntegrator {
     return result;
   }
 
-  fn specular_reflect(&self, rd: RayDifferential, _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, arena: &Bump, _depth: u32) -> Spectrum {
+  fn specular_reflect(&self, _rd: RayDifferential, _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, _arena: &Bump, _depth: u32) -> Spectrum {
     todo!()
   }
 
-  fn specular_transmit(&self, rd: RayDifferential, _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, arena: &Bump, _depth: u32) -> Spectrum {
+  fn specular_transmit(&self, _rd: RayDifferential, _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, _arena: &Bump, _depth: u32) -> Spectrum {
     todo!()
   }
 

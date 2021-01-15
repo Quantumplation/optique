@@ -1,4 +1,4 @@
-use std::{ops::Mul, sync::Arc};
+use std::{ops::Mul};
 
 use super::{Matrix4x4, Point3, Ray, Vector3};
 

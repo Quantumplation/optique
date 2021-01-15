@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::{render::Spectrum, scene::AreaLight};
 
 use super::{Point3, Ray, Vector3};
@@ -14,6 +12,7 @@ pub struct InteractionCommon {
 }
 
 impl InteractionCommon {
+  #[allow(dead_code)]
   pub fn ray_between(&self, other: &InteractionCommon) -> Ray {
     let origin = self.point;
     let direction = Vector3::from(other.point - self.point);

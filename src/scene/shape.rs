@@ -2,8 +2,6 @@ use enum_dispatch::enum_dispatch;
 
 use crate::geometry::{Bounds3, InteractionCommon, Point3, Ray, SurfaceInteraction, Vector3};
 
-use super::PrimitiveInstance;
-
 #[enum_dispatch]
 pub trait Shape {
   fn bounds(&self) -> Bounds3<f32>;
@@ -19,7 +17,7 @@ pub struct NullShape {}
 
 impl Shape for NullShape {
     fn bounds(&self) -> Bounds3<f32> { Bounds3::default() }
-    fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> { None }
+    fn intersect(&self, _ray: &Ray) -> Option<SurfaceInteraction> { None }
 }
 
 pub struct SphereShape {
