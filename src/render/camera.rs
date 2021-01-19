@@ -127,4 +127,23 @@ impl Camera for PerspectiveCamera {
     let ray = self.camera_to_world * ray;
     (1., ray)
   }
+  fn generate_ray_differential(&self, sample: &CameraSample) -> (f32, RayDifferential) {
+      if self.lens_radius > 0. {
+        unimplemented!("Depth of field is not implemented yet");
+      } else {
+        // NOTE: reimplements generate_ray above, because we need to reuse point_camera
+        let point_raster = Point3::new(sample.film_point.x, sample.film_point.y, 0.);
+        let point_camera = self.raster_to_camera * point_raster;
+        let direction = Vector3::from(point_camera).normalized();
+        let ray = Ray { origin: Point3::default(), direction };
+        let ray_x = Ray { origin: ray.origin, direction: Vector3::from(point_camera + self.pixel_ray_dx).normalized() };
+        let ray_y = Ray { origin: ray.origin, direction: Vector3::from(point_camera + self.pixel_ray_dy).normalized() };
+
+        return (1., RayDifferential {
+          ray,
+          ray_x,
+          ray_y,
+        });
+      }
+  }
 }

@@ -62,8 +62,8 @@ fn main() {
         1,
         CameraInstance::from(PerspectiveCamera::new(
             Transform::default(), Bounds2 { min: Point2 { x: -0.5, y: -0.5 }, max: Point2 { x: 0.5, y: 0.5 } },
-            0., 0., 0., 0., 30.,
-            Arc::new(Film::new(Point2 { x: 100, y: 100 }))
+            0., 0., 0., 0., 75.,
+            Arc::new(Film::new(Point2 { x: 500, y: 500 }))
         )),
         SamplerInstance::from(NullSampler {}),
     );
