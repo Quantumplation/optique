@@ -15,21 +15,21 @@ pub struct Vector3<T> {
   pub z: T,
 }
 
-impl Vector3<f32> {
-  pub fn new(x: f32, y: f32, z: f32) -> Self {
+impl Vector3<f64> {
+  pub fn new(x: f64, y: f64, z: f64) -> Self {
     Vector3 { x, y, z }
   }
-  pub fn length_squared(&self) -> f32 {
+  pub fn length_squared(&self) -> f64 {
     self.x * self.x + self.y * self.y + self.z * self.z
   }
-  pub fn length(&self) -> f32 {
+  pub fn length(&self) -> f64 {
     self.length_squared().sqrt()
   }
-  pub fn normalized(&self) -> Vector3<f32> {
+  pub fn normalized(&self) -> Vector3<f64> {
     let len = self.length();
     Vector3 { x: self.x / len, y: self.y / len, z: self.z / len }
   }
-  pub fn dot(&self, rhs: Vector3<f32>) -> f32 {
+  pub fn dot(&self, rhs: Vector3<f64>) -> f64 {
     self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
   }
 }

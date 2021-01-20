@@ -56,7 +56,7 @@ impl<T: SamplerIntegrator> Integrator for T {
         let (weight, mut ray) = camera.generate_ray_differential(&camera_sample);
         
         // Scale the ray differential offsets down the more samples we're taking per pixel
-        let factor = 1. / (sampler.samples_per_pixel() as f32).sqrt();
+        let factor = 1. / (sampler.samples_per_pixel() as f64).sqrt();
         ray.scale(factor);
 
         // Sample light along the ray
@@ -133,7 +133,7 @@ impl SamplerIntegrator for WhittedIntegrator {
     // Now add in the contribution from each light source
     for light in &scene.lights {
       // TODO: pick a point to sample
-      let radiance_sample = light.sample_radiance(&interaction, Point2::<f32>::default());
+      let radiance_sample = light.sample_radiance(&interaction, Point2::<f64>::default());
       if radiance_sample.color.is_black() || radiance_sample.probability_distribution == 0. {
         continue;
       }
@@ -141,7 +141,8 @@ impl SamplerIntegrator for WhittedIntegrator {
       // TODO: evaluate bsdf
 
       // TODO: occlusion testing
-      let visible = true; // scene.any_intersect(&radiance_sample.interactions.0.ray_between(&radiance_sample.interactions.1));
+      let occlusion_ray = &radiance_sample.interactions.0.ray_between(&radiance_sample.interactions.1);
+      let visible = scene.any_intersect(occlusion_ray);
       if visible {
         let contribution = radiance_sample.incident_direction.dot(interaction.common.normal).abs() / radiance_sample.probability_distribution;
         result += radiance_sample.color * contribution;

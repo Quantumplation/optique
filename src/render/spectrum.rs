@@ -2,9 +2,9 @@ use std::ops::{Add, AddAssign, Div, Mul};
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct Spectrum {
-  pub r: f32,
-  pub g: f32,
-  pub b: f32,
+  pub r: f64,
+  pub g: f64,
+  pub b: f64,
 }
 
 pub enum RadianceProblems {
@@ -13,9 +13,9 @@ pub enum RadianceProblems {
   InfiniteLuminance,
 }
 
-const LUMINANCE_WEIGHT: [f32; 3] = [0.212_671, 0.715_160, 0.072_169];
+const LUMINANCE_WEIGHT: [f64; 3] = [0.212_671, 0.715_160, 0.072_169];
 impl Spectrum {
-  pub fn luminance(&self) -> f32 {
+  pub fn luminance(&self) -> f64 {
     self.r * LUMINANCE_WEIGHT[0] + self.g * LUMINANCE_WEIGHT[1] + self.b * LUMINANCE_WEIGHT[2]
   }
 
@@ -56,16 +56,16 @@ impl AddAssign for Spectrum {
   }
 }
 
-impl Mul<f32> for Spectrum {
+impl Mul<f64> for Spectrum {
   type Output = Self;
-  fn mul(self, s: f32) -> Self::Output {
+  fn mul(self, s: f64) -> Self::Output {
     Self::Output { r: s * self.r, g: s * self.g, b: s * self.b }
   }
 }
 
-impl Div<f32> for Spectrum {
+impl Div<f64> for Spectrum {
   type Output = Self;
-  fn div(self, s: f32) -> Self::Output {
+  fn div(self, s: f64) -> Self::Output {
     Self::Output { r: self.r / s, g: self.g / s, b: self.b / s }
   }
 }

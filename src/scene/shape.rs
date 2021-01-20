@@ -4,7 +4,7 @@ use crate::geometry::{Bounds3, InteractionCommon, Point3, Ray, SurfaceInteractio
 
 #[enum_dispatch]
 pub trait Shape {
-  fn bounds(&self) -> Bounds3<f32>;
+  fn bounds(&self) -> Bounds3<f64>;
   fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction>;
 }
 #[enum_dispatch(Shape)]
@@ -16,20 +16,20 @@ pub enum ShapeInstance {
 pub struct NullShape {}
 
 impl Shape for NullShape {
-    fn bounds(&self) -> Bounds3<f32> { Bounds3::default() }
+    fn bounds(&self) -> Bounds3<f64> { Bounds3::default() }
     fn intersect(&self, _ray: &Ray) -> Option<SurfaceInteraction> { None }
 }
 
 pub struct SphereShape {
-  pub point: Point3<f32>,
-  pub radius: f32,
+  pub point: Point3<f64>,
+  pub radius: f64,
 }
 
 impl Shape for SphereShape {
-  fn bounds(&self) -> Bounds3<f32> { Bounds3::default() }
+  fn bounds(&self) -> Bounds3<f64> { Bounds3::default() }
   fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
     // Find the time halfway between the two intersections
-    let offset = Vector3::<f32>::from(self.point - ray.origin);
+    let offset = Vector3::<f64>::from(self.point - ray.origin);
     let t_center = offset.dot(ray.direction);
     // If this is negative, the ray is pointing in the wrong direction
     if t_center < 0. { return None; }

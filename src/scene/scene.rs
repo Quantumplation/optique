@@ -6,7 +6,7 @@ use super::{AreaLight, GeometricPrimitive, Light, LightInstance, Primitive, Prim
 pub struct Scene {
   pub lights: Vec<LightInstance>,
   pub root: PrimitiveInstance,
-  pub world_bounds: Bounds3<f32>,
+  pub world_bounds: Bounds3<f64>,
 }
 
 #[allow(dead_code)]

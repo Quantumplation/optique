@@ -10,9 +10,9 @@ use super::{CameraSample, Film};
 pub trait Camera {
     fn bounds(&self) -> Bounds2<i32>;
     fn film(&self) -> Arc<Film>;
-    fn generate_ray(&self, sample: &CameraSample) -> (f32, Ray);
+    fn generate_ray(&self, sample: &CameraSample) -> (f64, Ray);
 
-    fn generate_ray_differential(&self, sample: &CameraSample) -> (f32, RayDifferential) {
+    fn generate_ray_differential(&self, sample: &CameraSample) -> (f64, RayDifferential) {
       // Generate 3 rays:
       // - the one we'd normally generate
       let (wt, ray) = self.generate_ray(sample);
@@ -51,26 +51,26 @@ pub struct PerspectiveCamera {
   pub raster_to_camera: Transform,
   pub screen_to_raster: Transform,
   pub raster_to_screen: Transform,
-  pub shutter_open: f32,
-  pub shutter_close: f32,
-  pub lens_radius: f32,
-  pub focal_distance: f32,
-  pub pixel_ray_dx: Vector3<f32>,
-  pub pixel_ray_dy: Vector3<f32>,
-  pub view_area: f32,
+  pub shutter_open: f64,
+  pub shutter_close: f64,
+  pub lens_radius: f64,
+  pub focal_distance: f64,
+  pub pixel_ray_dx: Vector3<f64>,
+  pub pixel_ray_dy: Vector3<f64>,
+  pub view_area: f64,
 }
 
 impl PerspectiveCamera {
   pub fn new(
-    camera_to_world: Transform, bounds: Bounds2<f32>,
-    shutter_open: f32, shutter_close: f32, lens_radius: f32, focal_distance: f32,
-    field_of_view: f32,
+    camera_to_world: Transform, bounds: Bounds2<f64>,
+    shutter_open: f64, shutter_close: f64, lens_radius: f64, focal_distance: f64,
+    field_of_view: f64,
     film: Arc<Film>
   ) -> Self {
     let camera_to_screen = Transform::perspective(field_of_view, 0.01, 1000.);
 
     let resolution = film.bounds().max;
-    let resolution_scale = Transform::scale(Vector3::new(resolution.x as f32, resolution.y as f32, 1.));
+    let resolution_scale = Transform::scale(Vector3::new(resolution.x as f64, resolution.y as f64, 1.));
     let screen_scale = Transform::scale(Vector3::new(
       1. / (bounds.max.x - bounds.min.x),
       1. / (bounds.max.y - bounds.min.y),
@@ -88,7 +88,7 @@ impl PerspectiveCamera {
     let pixel_ray_dy: Vector3<_> = (raster_to_camera * dy) - (raster_to_camera * zero);
     
     let camera_min: Vector3<_> = raster_to_camera * zero;
-    let camera_max: Vector3<_> = raster_to_camera * Vector3::new(resolution.x as f32, resolution.y as f32, 0.);
+    let camera_max: Vector3<_> = raster_to_camera * Vector3::new(resolution.x as f64, resolution.y as f64, 0.);
     let near_min: Vector3<_> = camera_min / camera_min.z;
     let near_max: Vector3<_> = camera_max / camera_max.z;
     let view_area = ((near_max.x - near_min.x) * (near_max.y - near_min.y)).abs();
@@ -116,7 +116,7 @@ impl Camera for PerspectiveCamera {
   fn film(&self) -> Arc<Film> {
     self.film.clone()
   }
-  fn generate_ray(&self, sample: &CameraSample) -> (f32, Ray) {
+  fn generate_ray(&self, sample: &CameraSample) -> (f64, Ray) {
     let point_raster = Point3::new(sample.film_point.x, sample.film_point.y, 0.);
     let point_camera = self.raster_to_camera * point_raster;
     let direction = Vector3::from(point_camera).normalized();
@@ -127,7 +127,7 @@ impl Camera for PerspectiveCamera {
     let ray = self.camera_to_world * ray;
     (1., ray)
   }
-  fn generate_ray_differential(&self, sample: &CameraSample) -> (f32, RayDifferential) {
+  fn generate_ray_differential(&self, sample: &CameraSample) -> (f64, RayDifferential) {
       if self.lens_radius > 0. {
         unimplemented!("Depth of field is not implemented yet");
       } else {

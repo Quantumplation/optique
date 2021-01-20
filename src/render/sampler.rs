@@ -11,7 +11,7 @@ pub trait Sampler {
 
   fn get_camera_sample(&self, raster_point: Point2<i32>) -> CameraSample {
     CameraSample {
-      film_point: Point2::<f32>::from(raster_point) + Point2::default(),
+      film_point: Point2::<f64>::from(raster_point) + Point2::default(),
       lens_point: Point2::default(),
     }
   }
@@ -19,8 +19,8 @@ pub trait Sampler {
 
 #[derive(Clone)]
 pub struct CameraSample {
-  pub film_point: Point2<f32>,
-  pub lens_point: Point2<f32>,
+  pub film_point: Point2<f64>,
+  pub lens_point: Point2<f64>,
 }
 
 #[enum_dispatch(Sampler)]

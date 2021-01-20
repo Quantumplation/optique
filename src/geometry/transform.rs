@@ -17,7 +17,7 @@ impl Transform {
     Transform { matrix: self.inverse.clone(), inverse: self.matrix.clone() }
   }
   
-  pub fn translate(delta: Vector3<f32>) -> Self {
+  pub fn translate(delta: Vector3<f64>) -> Self {
     let m = 
       [[1., 0., 0., delta.x],
        [0., 1., 0., delta.y],
@@ -33,7 +33,7 @@ impl Transform {
     Transform::new(Matrix4x4::new(m), Some(Matrix4x4::new(inv)))
   }
 
-  pub fn scale(axis: Vector3<f32>) -> Self {
+  pub fn scale(axis: Vector3<f64>) -> Self {
     let m = 
       [[axis.x,     0.,     0.,      0.],
        [    0., axis.y,     0.,      0.],
@@ -49,7 +49,7 @@ impl Transform {
     Transform::new(Matrix4x4::new(m), Some(Matrix4x4::new(inv)))
   }
   
-  pub fn perspective(field_of_view: f32, near: f32, far: f32) -> Self {
+  pub fn perspective(field_of_view: f64, near: f64, far: f64) -> Self {
     let field_of_view_radians = field_of_view * (3.141592653 / 180.);
     let half_fov = field_of_view_radians / 2.;
     let inv_tan_angle = 1. / (half_fov).tan();
@@ -76,10 +76,10 @@ impl Mul for Transform {
     }
 }
 
-impl Mul<Vector3<f32>> for Transform {
-    type Output = Vector3<f32>;
+impl Mul<Vector3<f64>> for Transform {
+    type Output = Vector3<f64>;
 
-    fn mul(self, rhs: Vector3<f32>) -> Self::Output {
+    fn mul(self, rhs: Vector3<f64>) -> Self::Output {
       let matrix = &self.matrix.m;
       let x  = matrix[0][0] * rhs.x + matrix[0][1] * rhs.y + matrix[0][2] * rhs.z + matrix[0][3];
       let y  = matrix[1][0] * rhs.x + matrix[1][1] * rhs.y + matrix[1][2] * rhs.z + matrix[1][3];
@@ -94,10 +94,10 @@ impl Mul<Vector3<f32>> for Transform {
     }
 }
 
-impl Mul<Point3<f32>> for Transform {
-  type Output = Point3<f32>;
+impl Mul<Point3<f64>> for Transform {
+  type Output = Point3<f64>;
 
-  fn mul(self, rhs: Point3<f32>) -> Self::Output {
+  fn mul(self, rhs: Point3<f64>) -> Self::Output {
     let matrix = &self.matrix.m;
     let x  = matrix[0][0] * rhs.x + matrix[0][1] * rhs.y + matrix[0][2] * rhs.z + matrix[0][3];
     let y  = matrix[1][0] * rhs.x + matrix[1][1] * rhs.y + matrix[1][2] * rhs.z + matrix[1][3];

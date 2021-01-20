@@ -2,7 +2,7 @@ use std::{ops::Mul};
 
 #[derive(Copy, Clone)]
 pub struct Matrix4x4 {
-  pub m: [[f32; 4]; 4],
+  pub m: [[f64; 4]; 4],
 }
 
 impl Default for Matrix4x4 {
@@ -17,15 +17,15 @@ impl Default for Matrix4x4 {
 }
 
 impl Matrix4x4 {
-  pub fn new(m: [[f32; 4]; 4]) -> Self {
+  pub fn new(m: [[f64; 4]; 4]) -> Self {
     Matrix4x4 { m }
   }
 
   pub fn from_parts(
-    m_1_1: f32, m_1_2: f32, m_1_3: f32, m_1_4: f32,
-    m_2_1: f32, m_2_2: f32, m_2_3: f32, m_2_4: f32,
-    m_3_1: f32, m_3_2: f32, m_3_3: f32, m_3_4: f32,
-    m_4_1: f32, m_4_2: f32, m_4_3: f32, m_4_4: f32,
+    m_1_1: f64, m_1_2: f64, m_1_3: f64, m_1_4: f64,
+    m_2_1: f64, m_2_2: f64, m_2_3: f64, m_2_4: f64,
+    m_3_1: f64, m_3_2: f64, m_3_3: f64, m_3_4: f64,
+    m_4_1: f64, m_4_2: f64, m_4_3: f64, m_4_4: f64,
   ) -> Self {
     Matrix4x4 {
       m: [

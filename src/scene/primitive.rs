@@ -5,7 +5,7 @@ use crate::geometry::{Bounds3, Ray, SurfaceInteraction};
 use super::{AreaLight, Shape, ShapeInstance};
 #[enum_dispatch]
 pub trait Primitive {
-  fn bounds(&self) -> Bounds3<f32>;
+  fn bounds(&self) -> Bounds3<f64>;
   fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction>;
   fn emissive_properties(&self) -> Option<AreaLight>;
 }
@@ -20,7 +20,7 @@ pub enum PrimitiveInstance {
 pub struct NullPrimitive {}
 
 impl Primitive for NullPrimitive {
-  fn bounds(&self) -> Bounds3<f32> {
+  fn bounds(&self) -> Bounds3<f64> {
     Bounds3::default()
   }
 
@@ -38,7 +38,7 @@ pub struct GeometricPrimitive {
 }
 
 impl Primitive for GeometricPrimitive {
-  fn bounds(&self) -> Bounds3<f32> {
+  fn bounds(&self) -> Bounds3<f64> {
     self.shape.bounds()
   }
 
@@ -61,7 +61,7 @@ pub struct PrimitiveList {
 }
 
 impl Primitive for PrimitiveList {
-    fn bounds(&self) -> Bounds3<f32> {
+    fn bounds(&self) -> Bounds3<f64> {
       Bounds3::default()
     }
 

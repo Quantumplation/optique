@@ -1,8 +1,8 @@
 use super::{Point3, Vector3};
 
 pub struct Ray {
-  pub origin: Point3<f32>,
-  pub direction: Vector3<f32>,
+  pub origin: Point3<f64>,
+  pub direction: Vector3<f64>,
 }
 
 pub struct RayDifferential {
@@ -12,7 +12,7 @@ pub struct RayDifferential {
 }
   
 impl RayDifferential {
-  pub fn scale(&mut self, factor: f32) {
+  pub fn scale(&mut self, factor: f64) {
     let (origin, direction) = (self.ray.origin, self.ray.direction);
     self.ray_x.origin = origin + (self.ray_x.origin - origin) * factor;
     self.ray_x.direction = Vector3::from(origin) + (self.ray_x.direction - direction) * factor;

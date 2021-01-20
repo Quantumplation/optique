@@ -5,10 +5,10 @@ use super::{Point3, Ray, Vector3};
 
 #[derive(Default, Clone)]
 pub struct InteractionCommon {
-  pub point: Point3<f32>,
-  pub distance: f32,
-  pub reverse_ray: Vector3<f32>,
-  pub normal: Vector3<f32>,
+  pub point: Point3<f64>,
+  pub distance: f64,
+  pub reverse_ray: Vector3<f64>,
+  pub normal: Vector3<f64>,
 }
 
 impl InteractionCommon {
