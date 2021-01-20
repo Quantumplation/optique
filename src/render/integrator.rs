@@ -140,10 +140,9 @@ impl SamplerIntegrator for WhittedIntegrator {
       
       // TODO: evaluate bsdf
 
-      // TODO: occlusion testing
       let occlusion_ray = &radiance_sample.interactions.0.ray_between(&radiance_sample.interactions.1);
-      let visible = scene.any_intersect(occlusion_ray);
-      if visible {
+      let occluded = scene.any_intersect(occlusion_ray);
+      if !occluded {
         let contribution = radiance_sample.incident_direction.dot(interaction.common.normal).abs() / radiance_sample.probability_distribution;
         result += radiance_sample.color * contribution;
       }

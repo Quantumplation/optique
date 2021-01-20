@@ -6,9 +6,9 @@ use super::{Point3, Ray, Vector3};
 #[derive(Default, Clone)]
 pub struct InteractionCommon {
   pub point: Point3<f64>,
-  pub distance: f64,
   pub reverse_ray: Vector3<f64>,
   pub normal: Vector3<f64>,
+  pub intersection_time: f64,
 }
 
 impl InteractionCommon {
@@ -16,7 +16,7 @@ impl InteractionCommon {
   pub fn ray_between(&self, other: &InteractionCommon) -> Ray {
     let origin = self.point;
     let direction = Vector3::from(other.point - self.point);
-    Ray { origin, direction }
+    Ray { origin, direction, time_max: f64::INFINITY }
   }
 }
 

@@ -1,4 +1,4 @@
-use crate::{geometry::{Bounds3, Point3, Ray, SurfaceInteraction}, render::Spectrum};
+use crate::{geometry::{Bounds3, Ray, SurfaceInteraction, Transform, Vector3}, render::Spectrum};
 
 use super::{AreaLight, GeometricPrimitive, Light, LightInstance, Primitive, PrimitiveInstance, ShapeInstance, SphereShape};
 
@@ -30,7 +30,7 @@ impl Scene {
   pub fn from(scene: &pbrt_rs::Scene) -> Scene {
     Scene::new(
       PrimitiveInstance::from(GeometricPrimitive {
-        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 0., y: 0., z: 10. }, radius: 2. }),
+        shape: ShapeInstance::from(SphereShape { object_to_world: Transform::translate( Vector3 { x: 0., y: 0., z: -10. } ), radius: 2. }),
         emission: Some(AreaLight { emitted_color: Spectrum { r: 0.3, g: 0., b: 0. } }),
       }),
       scene.lights.iter().map(LightInstance::from).collect(),

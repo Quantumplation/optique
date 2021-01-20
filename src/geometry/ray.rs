@@ -1,8 +1,10 @@
 use super::{Point3, Vector3};
 
+#[derive(Clone, Copy)]
 pub struct Ray {
   pub origin: Point3<f64>,
   pub direction: Vector3<f64>,
+  pub time_max: f64,
 }
 
 pub struct RayDifferential {

@@ -7,7 +7,7 @@ mod scene;
 use std::{path::PathBuf, sync::Arc, unimplemented};
 
 use clap::Clap;
-use geometry::{Bounds2, Point2, Point3, Transform};
+use geometry::{Bounds2, Point2, Point3, Transform, Vector3};
 use options::*;
 use render::*;
 use scene::{GeometricPrimitive, LightInstance, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
@@ -29,25 +29,15 @@ fn main() {
     } else {
         unimplemented!("Reading multiple files is currently unimplemented!");
     };
+    
+    let s1 = Transform::translate(Vector3 { x: 0., y: 0., z: 0. });
 
     let scene = Scene::new(
         PrimitiveInstance::from(
             PrimitiveList {
                 primitives: vec![
                     PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 0., y: 0., z: -10. }, radius: 2. }),
-                        emission: None
-                    }),
-                    PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 0., y: 0., z: -10. }, radius: 2. }),
-                        emission: None
-                    }),
-                    PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: 3., y: 0., z: -10. }, radius: 1. }),
-                        emission: None
-                    }),
-                    PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { point: Point3 { x: -3., y: -1., z: -8. }, radius: 1. }),
+                        shape: ShapeInstance::from(SphereShape { object_to_world: s1, radius: 1. }),
                         emission: None
                     }),
                 ]
@@ -58,10 +48,15 @@ fn main() {
         ],
     );
 
+    let cam_trans = Transform::look_at(
+        Point3 { x: 0., y: 0., z: 11. },
+        Point3::default(),
+        Vector3 { x: 0., y: 1., z: 0. }
+    );
     let mut i = WhittedIntegrator::new(
         1,
         CameraInstance::from(PerspectiveCamera::new(
-            Transform::default(), Bounds2 { min: Point2 { x: -0.5, y: -0.5 }, max: Point2 { x: 0.5, y: 0.5 } },
+            cam_trans, Bounds2 { min: Point2 { x: -0.5, y: -0.5 }, max: Point2 { x: 0.5, y: 0.5 } },
             0., 0., 0., 0., 75.,
             Arc::new(Film::new(Point2 { x: 500, y: 500 }))
         )),

@@ -32,6 +32,18 @@ impl Vector3<f64> {
   pub fn dot(&self, rhs: Vector3<f64>) -> f64 {
     self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
   }
+  pub fn cross(&self, rhs: Vector3<f64>) -> Vector3<f64> {
+    let (x,y,z) = (self.x, self.y, self.z);
+    let (ox, oy, oz) = (rhs.x, rhs.y, rhs.z);
+    Vector3 {
+      x: (y * oz) - (z * oy),
+      y: (z * ox) - (x * oz),
+      z: (x * oy) - (y * ox)
+    }
+  }
+  pub fn abs(&self) -> Self {
+    Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
+  }
 }
 
 impl<T> From<Point2<T>> for Vector2<T> {

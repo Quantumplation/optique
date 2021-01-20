@@ -1,16 +1,21 @@
-use std::{cmp::max, ops::{Add, Div, Mul, Neg, Sub}};
+use std::{ops::{Add, Div, Mul, Neg, Sub}};
 
 use float_next_after::NextAfter;
 
 #[derive(Debug, Clone, Copy, Default)]
-struct ErrorFloat {
-  value: f64,
-  low: f64,
-  high: f64,
+pub struct ErrorFloat {
+  pub value: f64,
+  pub low: f64,
+  pub high: f64,
 }
 
 const UP: f64 = f64::INFINITY;
 const DOWN: f64 = f64::NEG_INFINITY;
+
+pub fn gamma(n: u32) -> f64 {
+  let n = n as f64;
+  (n * f64::EPSILON * 0.5) / (1. - n * f64::EPSILON * 0.5)
+}
 
 impl ErrorFloat {
   pub fn new(value: f64, error: f64) -> Self {

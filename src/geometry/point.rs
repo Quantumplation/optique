@@ -34,6 +34,13 @@ impl From<Point2<i32>> for Point2<f64> {
   }
 }
 
+impl<T, U> From<Vector3<U>> for Point3<T>
+  where T: From<U> {
+  fn from(v: Vector3<U>) -> Self {
+    Point3 { x: v.x.into(), y: v.y.into(), z: v.z.into() }
+  }
+}
+
 impl<T: Add<Output = T>> Add for Point2<T> {
   type Output = Self;
 

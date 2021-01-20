@@ -120,7 +120,7 @@ impl Camera for PerspectiveCamera {
     let point_raster = Point3::new(sample.film_point.x, sample.film_point.y, 0.);
     let point_camera = self.raster_to_camera * point_raster;
     let direction = Vector3::from(point_camera).normalized();
-    let ray = Ray { origin: Point3::default(), direction };
+    let ray = Ray { origin: Point3::default(), direction, time_max: f64::INFINITY };
     if self.lens_radius > 0. {
       unimplemented!("Depth of field is not implemented yet");
     }
@@ -135,9 +135,9 @@ impl Camera for PerspectiveCamera {
         let point_raster = Point3::new(sample.film_point.x, sample.film_point.y, 0.);
         let point_camera = self.raster_to_camera * point_raster;
         let direction = Vector3::from(point_camera).normalized();
-        let ray = Ray { origin: Point3::default(), direction };
-        let ray_x = Ray { origin: ray.origin, direction: Vector3::from(point_camera + self.pixel_ray_dx).normalized() };
-        let ray_y = Ray { origin: ray.origin, direction: Vector3::from(point_camera + self.pixel_ray_dy).normalized() };
+        let ray = self.camera_to_world * Ray { origin: Point3::default(), direction, time_max: f64::INFINITY, };
+        let ray_x = self.camera_to_world * Ray { origin: ray.origin, direction: Vector3::from(point_camera + self.pixel_ray_dx).normalized(), time_max: f64::INFINITY };
+        let ray_y = self.camera_to_world * Ray { origin: ray.origin, direction: Vector3::from(point_camera + self.pixel_ray_dy).normalized(), time_max: f64::INFINITY };
 
         return (1., RayDifferential {
           ray,

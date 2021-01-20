@@ -57,7 +57,7 @@ impl Light for PointLight {
     let color = self.color / offset.length_squared();
     let light_interaction = InteractionCommon {
       point: self.position,
-      distance: offset.length(),
+      intersection_time: offset.length(),
       ..Default::default()
     };
     return RadianceSample {

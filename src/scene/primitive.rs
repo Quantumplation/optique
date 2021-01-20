@@ -70,8 +70,8 @@ impl Primitive for PrimitiveList {
         let mut min_interaction = None;
         for p in &self.primitives {
           if let Some(i) = p.intersect(ray) {
-            if min_dist < 0. || i.common.distance < min_dist {
-              min_dist = i.common.distance;
+            if min_dist < 0. || i.common.intersection_time < min_dist {
+              min_dist = i.common.intersection_time;
               min_interaction = Some(i);
             }
           }
