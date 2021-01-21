@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Sub};
+use std::ops::{Add, Div, Mul, Sub};
 
 use super::{Vector2, Vector3};
 
@@ -95,5 +95,13 @@ impl<T: Mul<T, Output = T> + Copy> Mul<T> for Point3<T> {
   type Output = Self;
   fn mul(self, s: T) -> Self::Output {
     Self::Output { x: s * self.x, y: s * self.y, z: s * self.z }
+  }
+}
+
+impl<T: Div<T, Output = T> + Copy> Div<T> for Point3<T> {
+  type Output = Self;
+
+  fn div(self, s: T) -> Self::Output {
+    Self { x: self.x / s, y: self.y / s, z: self.z / s }
   }
 }

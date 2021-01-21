@@ -73,24 +73,28 @@ impl PerspectiveCamera {
     let resolution_scale = Transform::scale(Vector3::new(resolution.x as f64, resolution.y as f64, 1.));
     let screen_scale = Transform::scale(Vector3::new(
       1. / (bounds.max.x - bounds.min.x),
-      1. / (bounds.max.y - bounds.min.y),
+      1. / (bounds.min.y - bounds.max.y),  // NOTE!
       1.
     ));
-    let translate = Transform::translate(Vector3::new(-bounds.min.x, -bounds.min.y, 0.));
+    let translate = Transform::translate(Vector3::new(
+      -bounds.min.x,
+      -bounds.max.y, // NOTE!
+      0.
+    ));
     let screen_to_raster = resolution_scale * screen_scale * translate;
     let raster_to_screen = screen_to_raster.inverse();
     let raster_to_camera = camera_to_screen.inverse() * raster_to_screen;
 
-    let zero = Vector3::default();
-    let dx = Vector3::new(1., 0., 0.);
-    let dy = Vector3::new(0., 1., 0.);
-    let pixel_ray_dx: Vector3<_> = (raster_to_camera * dx) - (raster_to_camera * zero);
-    let pixel_ray_dy: Vector3<_> = (raster_to_camera * dy) - (raster_to_camera * zero);
+    let zero = Point3::default();
+    let dx = Point3::new(1., 0., 0.);
+    let dy = Point3::new(0., 1., 0.);
+    let pixel_ray_dx  = Vector3::from((raster_to_camera * dx) - (raster_to_camera * zero));
+    let pixel_ray_dy = Vector3::from((raster_to_camera * dy) - (raster_to_camera * zero));
     
-    let camera_min: Vector3<_> = raster_to_camera * zero;
-    let camera_max: Vector3<_> = raster_to_camera * Vector3::new(resolution.x as f64, resolution.y as f64, 0.);
-    let near_min: Vector3<_> = camera_min / camera_min.z;
-    let near_max: Vector3<_> = camera_max / camera_max.z;
+    let camera_min: Point3<_> = raster_to_camera * zero;
+    let camera_max: Point3<_> = raster_to_camera * Point3::new(resolution.x as f64, resolution.y as f64, 0.);
+    let near_min: Point3<_> = camera_min / camera_min.z;
+    let near_max: Point3<_> = camera_max / camera_max.z;
     let view_area = ((near_max.x - near_min.x) * (near_max.y - near_min.y)).abs();
 
     PerspectiveCamera {

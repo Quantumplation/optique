@@ -52,7 +52,7 @@ impl Transform {
   pub fn perspective(field_of_view: f64, near: f64, far: f64) -> Self {
     let field_of_view_radians = field_of_view * (3.141592653 / 180.);
     let half_fov = field_of_view_radians / 2.;
-    let inv_tan_angle = 1. / (half_fov).tan();
+    let inv_tan_angle = 1. / half_fov.tan();
     let f1 = far / (far - near);
     let f2 = -near * f1;
     let projection = Matrix4x4::from_parts(
@@ -110,15 +110,15 @@ impl Mul for Transform {
 }
 
 impl Mul<Vector3<f64>> for Transform {
-    type Output = Vector3<f64>;
+  type Output = Vector3<f64>;
 
-    fn mul(self, rhs: Vector3<f64>) -> Self::Output {
-      let matrix = &self.matrix.m;
-      let x  = matrix[0][0] * rhs.x + matrix[0][1] * rhs.y + matrix[0][2] * rhs.z;
-      let y  = matrix[1][0] * rhs.x + matrix[1][1] * rhs.y + matrix[1][2] * rhs.z;
-      let z  = matrix[2][0] * rhs.x + matrix[2][1] * rhs.y + matrix[2][2] * rhs.z;
-      Self::Output { x, y, z }
-    }
+  fn mul(self, rhs: Vector3<f64>) -> Self::Output {
+    let matrix = &self.matrix.m;
+    let x  = matrix[0][0] * rhs.x + matrix[0][1] * rhs.y + matrix[0][2] * rhs.z;
+    let y  = matrix[1][0] * rhs.x + matrix[1][1] * rhs.y + matrix[1][2] * rhs.z;
+    let z  = matrix[2][0] * rhs.x + matrix[2][1] * rhs.y + matrix[2][2] * rhs.z;
+    Self::Output { x, y, z }
+  }
 }
 
 impl Mul<Point3<f64>> for Transform {

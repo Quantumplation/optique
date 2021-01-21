@@ -51,10 +51,12 @@ impl Matrix4x4 {
       for j in 0..4 {
         if pivot_index[j] != 1 {
           for k in 0..4 {
-            if result[j][k].abs() > max {
-              max = result[j][k].abs();
-              curr_row = j;
-              curr_col = k;
+            if pivot_index[k] == 0 {
+              if result[j][k].abs() > max {
+                max = result[j][k].abs();
+                curr_row = j;
+                curr_col = k;
+              }
             } else if pivot_index[k] > 1 {
               return None;
             }
