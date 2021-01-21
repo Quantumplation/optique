@@ -44,12 +44,12 @@ fn main() {
             }
         ),
         vec![
-            LightInstance::from(PointLight { position: Point3 { x: 1., y: -2., z: -5. }, color: Spectrum { r: 10., g: 0., b: 0. } })
+            LightInstance::from(PointLight { position: Point3 { x: 1., y: -2., z: -5. }, color: Spectrum { r: 30., g: 0., b: 0. } })
         ],
     );
 
     let cam_trans = Transform::look_at(
-        Point3 { x: 0., y: 0., z: 11. },
+        Point3 { x: 1., y: 0.0, z: 10. },
         Point3::default(),
         Vector3 { x: 0., y: 1., z: 0. }
     );
