@@ -13,3 +13,4 @@ This folder has screenshots of various milestones in the development of the deve
 |<img src="./005_shading.png" width="100" height="100"> | 2021-01-06T23:23 | Hacked in a simple shading method to test the sphere intersection normal calculation
 |<img src="./006_many.png" width="100" height="100">    | 2021-01-07T02:15 | Added a simple PrimitiveList shape for multiple objects, and implemented point lights
 |<img src="./007_fov.png" width="100" height="100">     | 2021-01-15T02:35 | Implements camera transforms for a perspective camera correctly, so we can have field-of-view
+|<img src="./008_shadows.png" width="100" height="100"> | 2021-01-21T01:58 | After working through subtle transform bugs, occlusion is working, meaning we cast shadows!

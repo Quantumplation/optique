@@ -90,7 +90,7 @@ impl Shape for SphereShape {
 
     Some(SurfaceInteraction {
       common: InteractionCommon {
-        point: point_hit,
+        point: self.object_to_world * point_hit, // Make sure to translate the point back to world coordinates
         reverse_ray: -ray.direction,
         normal,
         intersection_time: t_collision.value,
