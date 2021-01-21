@@ -29,24 +29,25 @@ pub struct SphereShape {
 impl Shape for SphereShape {
   fn bounds(&self) -> Bounds3<f64> { Bounds3::default() }
   fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
-    let (ray, err) = self.object_to_world.inverse().mul_with_error(*ray);
+    let world_to_object = self.object_to_world.inverse();
+    let (ray, err) = world_to_object.mul_with_error(*ray);
 
     // Track error in the origin
     let (ox, oy, oz) = (
-      ErrorFloat::new(ray.origin.x, err.origin.x),
-      ErrorFloat::new(ray.origin.y, err.origin.y),
-      ErrorFloat::new(ray.origin.z, err.origin.z),
+      ErrorFloat::new(ray.origin.x, err.0.x),
+      ErrorFloat::new(ray.origin.y, err.0.y),
+      ErrorFloat::new(ray.origin.z, err.0.z),
     );
     let (dx, dy, dz) = (
-      ErrorFloat::new(ray.direction.x, err.direction.x),
-      ErrorFloat::new(ray.direction.y, err.direction.y),
-      ErrorFloat::new(ray.direction.z, err.direction.z),
+      ErrorFloat::new(ray.direction.x, err.1.x),
+      ErrorFloat::new(ray.direction.y, err.1.y),
+      ErrorFloat::new(ray.direction.z, err.1.z),
     );
 
     let radius: ErrorFloat = self.radius.into();
-    let a = dx * dx + dy * dy + dz * dz;
-    let b = 2. * (dx * ox + dy * oy + dz * oz);
-    let c = ox * ox + oy * oy + oz * oz - radius * radius;
+    let a: ErrorFloat = dx * dx + dy * dy + dz * dz;
+    let b: ErrorFloat = 2. * (dx * ox + dy * oy + dz * oz);
+    let c: ErrorFloat = ox * ox + oy * oy + oz * oz - (radius * radius);
 
     let quadratic = ErrorFloat::qudratic(a, b, c);
     if quadratic.is_none() {
@@ -89,7 +90,7 @@ impl Shape for SphereShape {
 
     Some(SurfaceInteraction {
       common: InteractionCommon {
-        point: point_hit.into(),
+        point: point_hit,
         reverse_ray: -ray.direction,
         normal,
         intersection_time: t_collision.value,

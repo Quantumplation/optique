@@ -10,7 +10,7 @@ use clap::Clap;
 use geometry::{Bounds2, Point2, Point3, Transform, Vector3};
 use options::*;
 use render::*;
-use scene::{GeometricPrimitive, LightInstance, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
+use scene::{AreaLight, GeometricPrimitive, LightInstance, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
 
 fn main() {
     let options: Options = Options::parse();
@@ -30,37 +30,32 @@ fn main() {
         unimplemented!("Reading multiple files is currently unimplemented!");
     };
     
-    let s1 = Transform::translate(Vector3 { x: 0., y: 0., z: 0. });
-    let s2 = Transform::translate(Vector3 { x: 0., y: 0., z: 10. });
-    let s3 = Transform::translate(Vector3 { x: 2., y: 0., z: 0. });
+    let s1 = Transform::translate(Vector3 { x: 0., y: 0., z: -7. });
+    let s2 = Transform::translate(Vector3 { x: 0., y: 0., z: 0. });
 
     let scene = Scene::new(
         PrimitiveInstance::from(
             PrimitiveList {
                 primitives: vec![
-                    // PrimitiveInstance::from(GeometricPrimitive {
-                    //     shape: ShapeInstance::from(SphereShape { object_to_world: s1, radius: 0.5 }),
-                    //     emission: None
-                    // }),
                     PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { object_to_world: s2, radius: 0.5 }),
+                        shape: ShapeInstance::from(SphereShape { object_to_world: s1, radius: 4. }),
+                        emission: Some(AreaLight { emitted_color: Spectrum::default() })
+                    }),
+                    PrimitiveInstance::from(GeometricPrimitive {
+                        shape: ShapeInstance::from(SphereShape { object_to_world: s2, radius: 1. }),
                         emission: None
                     }),
-                    // PrimitiveInstance::from(GeometricPrimitive {
-                    //     shape: ShapeInstance::from(SphereShape { object_to_world: s3, radius: 0.5 }),
-                    //     emission: None
-                    // }),
                 ]
             }
         ),
         vec![
-            LightInstance::from(PointLight { position: Point3 { x: 1., y: 2., z: 5. }, color: Spectrum { r: 10., g: 0., b: 0. } })
+            LightInstance::from(PointLight { position: Point3 { x: 0., y: 0., z: 10. }, color: Spectrum { r: 50., g: 0., b: 0. } })
         ],
     );
 
     let cam_trans = Transform::look_at(
-        Point3 { x: 1., y: 0.0, z: 10. },
-        Point3::default(),
+        Point3 { x: 5., y: 5.0, z: 3. },
+        Point3 { x: 0., y: 0., z: -2.5 },
         Vector3 { x: 0., y: 1., z: 0. }
     ).inverse();
     let mut i = WhittedIntegrator::new(

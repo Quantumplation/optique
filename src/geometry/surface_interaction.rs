@@ -15,7 +15,7 @@ impl InteractionCommon {
   #[allow(dead_code)]
   pub fn ray_between(&self, other: &InteractionCommon) -> Ray {
     let origin = self.point;
-    let direction = Vector3::from(other.point - self.point);
+    let direction = Vector3::from(other.point - self.point).normalized();
     Ray { origin, direction, time_max: f64::INFINITY }
   }
 }

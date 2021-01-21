@@ -158,10 +158,10 @@ pub trait MulWithError<T = Self> {
   fn mul_with_error_in(&self, other: T, err: Self::Err) -> (Self::Output, Self::Err);
 }
 
-impl MulWithError<Vector3<f64>> for Transform {
-  type Output = Vector3<f64>;
+impl MulWithError<Point3<f64>> for Transform {
+  type Output = Point3<f64>;
   type Err = Vector3<f64>;
-  fn mul_with_error(&self, p: Vector3<f64>) -> (Self::Output, Self::Err) {
+  fn mul_with_error(&self, p: Point3<f64>) -> (Self::Output, Self::Err) {
     let (x, y, z) = (p.x, p.y, p.z);
     let transformed_point = *self * p;
     let matrix = &self.matrix.m;
@@ -171,7 +171,7 @@ impl MulWithError<Vector3<f64>> for Transform {
     let err = Vector3 { x: x_err, y: y_err, z: z_err } * gamma(3);
     (transformed_point, err)
   }
-  fn mul_with_error_in(&self, p: Vector3<f64>, err: Vector3<f64>) -> (Self::Output, Self::Err) {
+  fn mul_with_error_in(&self, p: Point3<f64>, err: Vector3<f64>) -> (Self::Output, Self::Err) {
     let (x, y, z) = (p.x, p.y, p.z);
     let (ex, ey, ez) = (err.x, err.y, err.z);
 
@@ -181,35 +181,58 @@ impl MulWithError<Vector3<f64>> for Transform {
     let g_0 = gamma(3);
     let g_1 = g_0 + 1.;
     let x_err =
-      g_1 *  (matrix[0][0].abs() * ex +  matrix[0][1].abs() * ey +  matrix[0][2].abs() * ez + (matrix[0][3]).abs()) +
-      g_0 * ((matrix[0][0] * x).abs() + (matrix[0][1] * y).abs() + (matrix[0][2] * z).abs() + (matrix[0][3].abs()));
+      g_1 *  (matrix[0][0].abs() * ex +  matrix[0][1].abs() * ey +  matrix[0][2].abs() * ez) +
+      g_0 * ((matrix[0][0] * x).abs() + (matrix[0][1] * y).abs() + (matrix[0][2] * z).abs() + matrix[0][3].abs());
     let y_err =
-      g_1 *  (matrix[1][0].abs() * ex +  matrix[1][1].abs() * ey +  matrix[1][2].abs() * ez + (matrix[1][3]).abs()) +
-      g_0 * ((matrix[1][0] * x).abs() + (matrix[1][1] * y).abs() + (matrix[1][2] * z).abs() + (matrix[1][3].abs()));
+      g_1 *  (matrix[1][0].abs() * ex +  matrix[1][1].abs() * ey +  matrix[1][2].abs() * ez) +
+      g_0 * ((matrix[1][0] * x).abs() + (matrix[1][1] * y).abs() + (matrix[1][2] * z).abs() + matrix[1][3].abs());
     let z_err =
-      g_1 *  (matrix[2][0].abs() * ex +  matrix[2][1].abs() * ey +  matrix[2][2].abs() * ez + (matrix[2][3]).abs()) +
-      g_0 * ((matrix[2][0] * x).abs() + (matrix[2][1] * y).abs() + (matrix[2][2] * z).abs() + (matrix[2][3].abs()));
+      g_1 *  (matrix[2][0].abs() * ex +  matrix[2][1].abs() * ey +  matrix[2][2].abs() * ez) +
+      g_0 * ((matrix[2][0] * x).abs() + (matrix[2][1] * y).abs() + (matrix[2][2] * z).abs() + matrix[2][3].abs());
     let err = Vector3 { x: x_err, y: y_err, z: z_err };
     (transformed_point, err)
   }
 }
 
-impl MulWithError<Point3<f64>> for Transform {
-  type Output = Point3<f64>;
-  type Err = Point3<f64>;
-  fn mul_with_error(&self, other: Point3<f64>) -> (Self::Output, Self::Err) {
-    let (v, e) = self.mul_with_error(Vector3::from(other));
-    (v.into(), e.into())
+impl MulWithError<Vector3<f64>> for Transform {
+  type Output = Vector3<f64>;
+  type Err = Vector3<f64>;
+  fn mul_with_error(&self, p: Vector3<f64>) -> (Self::Output, Self::Err) {
+    let (x, y, z) = (p.x, p.y, p.z);
+    let transformed_point = *self * p;
+    let matrix = &self.matrix.m;
+    let x_err = (matrix[0][0] * x).abs() + (matrix[0][1] * y).abs() + (matrix[0][2] * z).abs();
+    let y_err = (matrix[1][0] * x).abs() + (matrix[1][1] * y).abs() + (matrix[1][2] * z).abs();
+    let z_err = (matrix[2][0] * x).abs() + (matrix[2][1] * y).abs() + (matrix[2][2] * z).abs();
+    let err = Vector3 { x: x_err, y: y_err, z: z_err } * gamma(3);
+    (transformed_point, err)
   }
-  fn mul_with_error_in(&self, other: Point3<f64>, err: Self::Err) -> (Self::Output, Self::Err) {
-    let (v, e) = self.mul_with_error_in(Vector3::from(other), Vector3::from(err));
-    (v.into(), e.into())
+  fn mul_with_error_in(&self, p: Vector3<f64>, err: Self::Err) -> (Self::Output, Self::Err) {
+    let (x, y, z) = (p.x, p.y, p.z);
+    let (ex, ey, ez) = (err.x, err.y, err.z);
+
+    let transformed_point = *self * p;
+
+    let matrix = &self.matrix.m;
+    let g_0 = gamma(3);
+    let g_1 = g_0 + 1.;
+    let x_err =
+      g_1 *  (matrix[0][0].abs() * ex +  matrix[0][1].abs() * ey +  matrix[0][2].abs() * ez) +
+      g_0 * ((matrix[0][0] * x).abs() + (matrix[0][1] * y).abs() + (matrix[0][2] * z).abs());
+    let y_err =
+      g_1 *  (matrix[1][0].abs() * ex +  matrix[1][1].abs() * ey +  matrix[1][2].abs() * ez) +
+      g_0 * ((matrix[1][0] * x).abs() + (matrix[1][1] * y).abs() + (matrix[1][2] * z).abs());
+    let z_err =
+      g_1 *  (matrix[2][0].abs() * ex +  matrix[2][1].abs() * ey +  matrix[2][2].abs() * ez) +
+      g_0 * ((matrix[2][0] * x).abs() + (matrix[2][1] * y).abs() + (matrix[2][2] * z).abs());
+    let err = Vector3 { x: x_err, y: y_err, z: z_err };
+    (transformed_point, err)
   }
 }
 
 impl MulWithError<Ray> for Transform {
   type Output = Ray;
-  type Err = Ray;
+  type Err = (Vector3<f64>, Vector3<f64>);
   fn mul_with_error(&self, other: Ray) -> (Self::Output, Self::Err) {
     let (mut origin, origin_err) = self.mul_with_error(other.origin);
     let (direction, dir_err) = self.mul_with_error(other.direction);
@@ -220,13 +243,13 @@ impl MulWithError<Ray> for Transform {
     }
     (
       Ray { origin, direction, time_max: other.time_max },
-      Ray { origin: origin_err, direction: dir_err, time_max: 0. }
+      (origin_err, dir_err)
     )
   }
 
   fn mul_with_error_in(&self, other: Ray, err: Self::Err) -> (Self::Output, Self::Err) {
-    let (mut origin, origin_err) = self.mul_with_error_in(other.origin, err.origin);
-    let (direction, dir_err) = self.mul_with_error_in(other.direction, err.direction);
+    let (mut origin, origin_err) = self.mul_with_error_in(other.origin, err.0);
+    let (direction, dir_err) = self.mul_with_error_in(other.direction, err.1);
     let length_sq = direction.length_squared();
     if length_sq > 0. {
       let offset = direction.abs().dot(Vector3::from(origin_err)) / length_sq;
@@ -234,7 +257,7 @@ impl MulWithError<Ray> for Transform {
     }
     (
       Ray { origin, direction, time_max: other.time_max },
-      Ray { origin: origin_err, direction: dir_err, time_max: 0. }
+      (origin_err, dir_err)
     )
   }
 }

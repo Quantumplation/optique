@@ -145,6 +145,8 @@ impl SamplerIntegrator for WhittedIntegrator {
       if !occluded {
         let contribution = radiance_sample.incident_direction.dot(interaction.common.normal).abs() / radiance_sample.probability_distribution;
         result += radiance_sample.color * contribution;
+      } else {
+        result = Spectrum { r: 0.0, g: 1.0, b: 0.0 };
       }
     }
 
