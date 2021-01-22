@@ -59,7 +59,7 @@ fn main() {
         Vector3 { x: 0., y: 1., z: 0. }
     ).inverse();
     let mut i = WhittedIntegrator::new(
-        1,
+        20,
         CameraInstance::from(PerspectiveCamera::new(
             cam_trans, Bounds2 { min: Point2 { x: -0.5, y: -0.5 }, max: Point2 { x: 0.5, y: 0.5 } },
             0., 0., 0., 0., 75.,

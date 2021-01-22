@@ -2,9 +2,9 @@ use std::sync::Arc;
 
 use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
-use crate::{geometry::{Point2, RayDifferential, SurfaceInteraction}, scene::{Light, Scene}};
+use crate::{geometry::{Point2, Ray, RayDifferential, SurfaceInteraction}, scene::{Light, Scene}};
 
-use super::{Camera, CameraInstance, RadianceProblems, Sampler, SamplerInstance, Spectrum};
+use super::{Camera, CameraInstance, RadianceProblems, Sampler, SamplerInstance, Spectrum, spectrum};
 
 #[enum_dispatch]
 pub trait Integrator {
@@ -29,7 +29,24 @@ impl Integrator for NullIntegrator {
 pub trait SamplerIntegrator {
   fn preprocess(&mut self, scene: &Scene);
   fn light_along_ray(&self, rd: RayDifferential, scene: &Scene, sampler: &SamplerInstance, arena: &Bump, depth: u32) -> Spectrum;
-  fn specular_reflect(&self, rd: RayDifferential, surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, arena: &Bump, depth: u32) -> Spectrum;
+  fn specular_reflect(&self, rd: RayDifferential, surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, arena: &Bump, depth: u32) -> Spectrum {
+    // TODO: BSDF sampling
+    let normal = surface_interaction.common.normal;
+    let incident_direction = -surface_interaction.common.reverse_ray.reflect(normal);
+    let pdf = 1.;
+    let color_sample = Spectrum { r: 1., g: 1., b: 1. };
+
+    let factor = incident_direction.dot(normal);
+    if pdf > 0. && !color_sample.is_black() && factor != 0. {
+      let rd = RayDifferential {
+        ray: Ray { origin: surface_interaction.common.point, direction: incident_direction, time_max: rd.ray.time_max },
+        ray_x: rd.ray_x, // TODO: compute these
+        ray_y: rd.ray_y,
+      };
+      return color_sample * self.light_along_ray(rd, scene, sampler, arena, depth + 1) * factor / pdf;
+    }
+    return Spectrum::default();
+  }
   fn specular_transmit(&self, rd: RayDifferential, surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, arena: &Bump, depth: u32) -> Spectrum;
 
   fn get_camera(&mut self) -> Arc<CameraInstance>;
@@ -112,7 +129,7 @@ impl SamplerIntegrator for WhittedIntegrator {
   fn preprocess(&mut self, _scene: &Scene) {
   }
 
-  fn light_along_ray(&self, rd: RayDifferential, scene: &Scene, _sampler: &SamplerInstance, _arena: &Bump, _depth: u32) -> Spectrum {
+  fn light_along_ray(&self, rd: RayDifferential, scene: &Scene, sampler: &SamplerInstance, arena: &Bump, depth: u32) -> Spectrum {
 
     let mut result = Spectrum::default();
 
@@ -148,11 +165,12 @@ impl SamplerIntegrator for WhittedIntegrator {
       }
     }
 
-    return result;
-  }
+    // And trace more bounces
+    if depth + 1 < self.max_depth {
+      result += self.specular_reflect(rd, interaction, scene, sampler, arena, depth);
+    }
 
-  fn specular_reflect(&self, _rd: RayDifferential, _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, _arena: &Bump, _depth: u32) -> Spectrum {
-    todo!()
+    return result;
   }
 
   fn specular_transmit(&self, _rd: RayDifferential, _surface_interaction: SurfaceInteraction, _scene: &Scene, _sampler: &SamplerInstance, _arena: &Bump, _depth: u32) -> Spectrum {

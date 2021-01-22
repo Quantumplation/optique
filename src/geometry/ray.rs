@@ -7,6 +7,16 @@ pub struct Ray {
   pub time_max: f64,
 }
 
+impl Ray {
+  pub fn reflect(&self, point: Point3<f64>, normal: Vector3<f64>) -> Self {
+    Ray {
+      origin: point,
+      direction: self.direction.reflect(normal),
+      time_max: self.time_max,
+    }
+  }
+}
+
 pub struct RayDifferential {
   pub ray: Ray,
   pub ray_x: Ray,
@@ -18,5 +28,13 @@ impl RayDifferential {
     let (origin, direction) = (self.ray.origin, self.ray.direction);
     self.ray_x.origin = origin + (self.ray_x.origin - origin) * factor;
     self.ray_x.direction = Vector3::from(origin) + (self.ray_x.direction - direction) * factor;
+  }
+
+  pub fn reflect(&self, point: Point3<f64>, normal: Vector3<f64>) -> Self {
+    RayDifferential {
+      ray: self.ray.reflect(point, normal),
+      ray_x: self.ray_x.reflect(point, normal),
+      ray_y: self.ray_y.reflect(point, normal),
+    }
   }
 }

@@ -44,6 +44,12 @@ impl Vector3<f64> {
   pub fn abs(&self) -> Self {
     Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
   }
+  pub fn reflect(&self, normal: Vector3<f64>) -> Self {
+    // NOTE: assumes the normal is normalized
+    let dot = self.dot(normal);
+    let offset = normal * 2. * dot;
+    return *self - offset;
+  }
 }
 
 impl<T> From<Point2<T>> for Vector2<T> {

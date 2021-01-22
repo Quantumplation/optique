@@ -63,6 +63,13 @@ impl Mul<f64> for Spectrum {
   }
 }
 
+impl Mul for Spectrum {
+  type Output = Self;
+  fn mul(self, s: Spectrum) -> Self::Output {
+    Self::Output { r: self.r * s.r, g: self.g * s.g, b: self.b * s.b }
+  }
+}
+
 impl Div<f64> for Spectrum {
   type Output = Self;
   fn div(self, s: f64) -> Self::Output {
