@@ -9,13 +9,15 @@ pub struct InteractionCommon {
   pub reverse_ray: Vector3<f64>,
   pub normal: Vector3<f64>,
   pub intersection_time: f64,
+  pub error: Vector3<f64>,
 }
 
 impl InteractionCommon {
   #[allow(dead_code)]
   pub fn ray_between(&self, other: &InteractionCommon) -> Ray {
-    let origin = self.point;
-    let direction = Vector3::from(other.point - self.point).normalized();
+    let origin = self.point.offset_for_error(self.error, self.normal, Vector3::from(other.point - self.point));
+    let target = other.point.offset_for_error(other.error, other.normal, Vector3::from(origin - other.point));
+    let direction = Vector3::from(target - origin).normalized();
     Ray { origin, direction, time_max: f64::INFINITY }
   }
 }

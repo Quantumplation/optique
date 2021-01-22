@@ -143,9 +143,20 @@ impl Mul<Ray> for Transform {
   type Output = Ray;
   
   fn mul(self, rhs: Ray) -> Self::Output {
+    let (origin, o_error) = self.mul_with_error(rhs.origin);
+    let direction = self * rhs.direction;
+
+    let length_squared = direction.length_squared();
+    let origin = if length_squared <= 0. {
+      origin
+    } else {
+      let distance = direction.abs().dot(o_error) / length_squared;
+      origin + direction * distance
+    };
+
     Ray {
-      origin: self * rhs.origin,
-      direction: self * rhs.direction,
+      origin,
+      direction,
       time_max: rhs.time_max,
     }
   }

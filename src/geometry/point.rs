@@ -1,6 +1,8 @@
 use std::ops::{Add, Div, Mul, Sub};
 
-use super::{Vector2, Vector3};
+use float_next_after::NextAfter;
+
+use super::{DOWN, UP, Vector2, Vector3};
 
 #[derive(Default, Copy, Clone, Debug)]
 pub struct Point2<T> {
@@ -25,6 +27,30 @@ pub struct Point3<T> {
 impl<T> Point3<T> {
   pub fn new(x: T, y: T, z: T) -> Self {
     Point3 { x, y, z }
+  }
+}
+
+impl Point3<f64> {
+  pub fn offset_for_error(&self, error: Vector3<f64>, normal: Vector3<f64>, reverse: Vector3<f64>) -> Self {
+    let distance = normal.abs().dot(error);
+    let offset: Vector3<_> = if reverse.dot(normal) < 0. {
+      -normal * distance
+    } else {
+      normal * distance
+    };
+
+    let mut origin = *self + offset;
+    // Round the offset point away from p
+    if offset.x > 0. { origin.x = origin.x.next_after(UP); }
+    else if offset.x < 0. { origin.x = origin.x.next_after(DOWN); }
+
+    if offset.y > 0. { origin.y = origin.y.next_after(UP); }
+    else if offset.y < 0. { origin.y = origin.y.next_after(DOWN); }
+
+    if offset.z > 0. { origin.z = origin.z.next_after(UP); }
+    else if offset.z < 0. { origin.z = origin.z.next_after(DOWN); }
+    
+    origin
   }
 }
 

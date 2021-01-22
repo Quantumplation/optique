@@ -9,8 +9,8 @@ pub struct ErrorFloat {
   pub high: f64,
 }
 
-const UP: f64 = f64::INFINITY;
-const DOWN: f64 = f64::NEG_INFINITY;
+pub const UP: f64 = f64::INFINITY;
+pub const DOWN: f64 = f64::NEG_INFINITY;
 
 pub fn gamma(n: u32) -> f64 {
   let n = n as f64;
