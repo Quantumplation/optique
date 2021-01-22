@@ -1,3 +1,4 @@
+mod constants;
 mod error;
 mod ray;
 mod bounds;
@@ -6,6 +7,7 @@ mod vector;
 mod matrix;
 mod transform;
 mod surface_interaction;
+pub use constants::*;
 pub use error::*;
 pub use ray::*;
 pub use bounds::*;

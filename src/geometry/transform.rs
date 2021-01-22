@@ -1,6 +1,6 @@
 use std::{ops::Mul};
 
-use super::{Matrix4x4, Point3, Ray, Vector3, gamma};
+use super::{Matrix4x4, Point3, Ray, Vector3, TO_RADIANS, gamma};
 
 #[derive(Default, Copy, Clone)]
 pub struct Transform {
@@ -50,7 +50,7 @@ impl Transform {
   }
   
   pub fn perspective(field_of_view: f64, near: f64, far: f64) -> Self {
-    let field_of_view_radians = field_of_view * (3.141592653 / 180.);
+    let field_of_view_radians = field_of_view * TO_RADIANS;
     let half_fov = field_of_view_radians / 2.;
     let inv_tan_angle = 1. / half_fov.tan();
     let f1 = far / (far - near);
