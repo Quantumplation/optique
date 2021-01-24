@@ -1,5 +1,3 @@
-use std::cmp::max;
-
 use super::Spectrum;
 
 pub enum Fresnel {

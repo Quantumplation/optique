@@ -4,7 +4,7 @@ use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
 use crate::{geometry::{Point2, Ray, RayDifferential, SurfaceInteraction}, scene::{Light, Scene}};
 
-use super::{Camera, CameraInstance, RadianceProblems, Sampler, SamplerInstance, Spectrum, spectrum};
+use super::{Camera, CameraInstance, RadianceProblems, Sampler, SamplerInstance, Spectrum};
 
 #[enum_dispatch]
 pub trait Integrator {

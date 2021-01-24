@@ -5,7 +5,7 @@ use bitflags::bitflags;
 use enum_dispatch::enum_dispatch;
 
 use crate::geometry::{INV_PI, Point2, Vector3};
-use super::{Fresnel, Spectrum};
+use super::{Spectrum};
 
 bitflags! {
     pub struct BxDFCategory: u8 {
@@ -28,7 +28,7 @@ bitflags! {
     category: BxDFCategory,
   }
   
-  mod ShadingCoordinates {
+  mod shading_coordinates {
     use crate::geometry::Vector3;
   
     pub fn abs_cos_theta(w: Vector3) -> f64 {
@@ -69,22 +69,22 @@ bitflags! {
       for sample in samples {
         let f_sample = self.sample_function(outgoing, sample);
         if f_sample.probability_distribution > 0. {
-          result += f_sample.value * ShadingCoordinates::abs_cos_theta(f_sample.incoming) / f_sample.probability_distribution;
+          result += f_sample.value * shading_coordinates::abs_cos_theta(f_sample.incoming) / f_sample.probability_distribution;
         }
       }
       return result;
     }
     fn hemispherical_hemispherical_reflectance(&self, samples1: &[Point2], samples2: &[Point2]) -> Spectrum {
-      let mut result = Spectrum::default();
-      for (a, b) in samples1.iter().zip(samples2) {
+      let result = Spectrum::default();
+      for (_a, _b) in samples1.iter().zip(samples2) {
         // TODO: random sampling
         unimplemented!("Haven't implemented random sampling yet");
       }
       return result;
     }
     fn probability_distribution(&self, outgoing: Vector3, incoming: Vector3) -> f64 {
-      if ShadingCoordinates::same_hemisphere(incoming, outgoing) {
-        ShadingCoordinates::abs_cos_theta(incoming) * INV_PI
+      if shading_coordinates::same_hemisphere(incoming, outgoing) {
+        shading_coordinates::abs_cos_theta(incoming) * INV_PI
       } else {
         0.
       }

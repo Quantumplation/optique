@@ -80,9 +80,9 @@ impl Shape for SphereShape {
     let phi = point_hit.y.atan2(point_hit.x);
     let phi = if phi < 0. { phi + two_pi } else { phi };
 
-    let u = phi / two_pi;
+    let _u = phi / two_pi;
     let theta = (point_hit.z / self.radius).clamp(-1., 1.).acos();
-    let v = theta / two_pi;
+    let _v = theta / two_pi;
 
     // TODO: better normals?
     let pos = self.object_to_world * Point3::default();

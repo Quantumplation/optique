@@ -65,12 +65,12 @@ impl ErrorFloat {
       return None;
     }
 
-    let rootDiscriminant = discriminant.sqrt();
-    let rootDiscriminant = ErrorFloat::new(rootDiscriminant, rootDiscriminant * f64::EPSILON * 0.5);
+    let root_discriminant = discriminant.sqrt();
+    let root_discriminant = ErrorFloat::new(root_discriminant, root_discriminant * f64::EPSILON * 0.5);
     let q = if b.value < 0. {
-      -0.5 * (b - rootDiscriminant)
+      -0.5 * (b - root_discriminant)
     } else {
-      -0.5 * (b + rootDiscriminant)
+      -0.5 * (b + root_discriminant)
     };
     let t0 = q / a;
     let t1 = c / q;
