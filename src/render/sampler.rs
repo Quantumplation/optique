@@ -19,8 +19,8 @@ pub trait Sampler {
 
 #[derive(Clone)]
 pub struct CameraSample {
-  pub film_point: Point2<f64>,
-  pub lens_point: Point2<f64>,
+  pub film_point: Point2,
+  pub lens_point: Point2,
 }
 
 #[enum_dispatch(Sampler)]

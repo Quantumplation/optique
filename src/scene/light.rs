@@ -6,7 +6,7 @@ use enum_dispatch::enum_dispatch;
 #[derive(Default)]
 pub struct RadianceSample {
   pub color: Spectrum,
-  pub incident_direction: Vector3<f64>,
+  pub incident_direction: Vector3,
   pub probability_distribution: f64,
   pub interactions: (InteractionCommon, InteractionCommon)
 }
@@ -16,7 +16,7 @@ pub trait Light {
   fn preprocess(&mut self, scene: &Scene);
   fn power(&self) -> Spectrum;
   fn background_radiance(&self, ray: &Ray) -> Spectrum; // pbrt: Le()
-  fn sample_radiance(&self, interaction: &SurfaceInteraction, point: Point2<f64>) -> RadianceSample; // pbrt: Sample_Li()
+  fn sample_radiance(&self, interaction: &SurfaceInteraction, point: Point2) -> RadianceSample; // pbrt: Sample_Li()
 }
 
 #[enum_dispatch(Light)]
@@ -37,13 +37,13 @@ impl Light for NullLight {
   fn preprocess(&mut self, _scene: &Scene) {}
   fn power(&self) -> Spectrum { Spectrum::default() }
   fn background_radiance(&self, _: &Ray) -> Spectrum { Spectrum::default() }
-  fn sample_radiance(&self, _: &SurfaceInteraction, _: Point2<f64>) -> RadianceSample {
+  fn sample_radiance(&self, _: &SurfaceInteraction, _: Point2) -> RadianceSample {
     RadianceSample::default()
   }
 }
 
 pub struct PointLight {
-  pub position: Point3<f64>,
+  pub position: Point3,
   pub color: Spectrum,
 }
 
@@ -51,7 +51,7 @@ impl Light for PointLight {
   fn preprocess(&mut self, _: &Scene) {}
   fn power(&self) -> Spectrum { self.color * 4. * 3.141592 }
   fn background_radiance(&self, _: &Ray) -> Spectrum { Spectrum::default() }
-  fn sample_radiance(&self, interaction: &SurfaceInteraction, _: Point2<f64>) -> RadianceSample {
+  fn sample_radiance(&self, interaction: &SurfaceInteraction, _: Point2) -> RadianceSample {
     let offset = Vector3::from(self.position - interaction.common.point);
     let incident_direction = offset.normalized();
     let color = self.color / offset.length_squared();
@@ -79,12 +79,12 @@ impl Light for AreaLight {
 
     fn power(&self) -> Spectrum { Spectrum::default() }
     fn background_radiance(&self, _ray: &Ray) -> Spectrum { Spectrum::default() }
-    fn sample_radiance(&self, _interaction: &SurfaceInteraction, _point: Point2<f64>) -> RadianceSample { RadianceSample::default() }
+    fn sample_radiance(&self, _interaction: &SurfaceInteraction, _point: Point2) -> RadianceSample { RadianceSample::default() }
 }
 
 impl AreaLight {
   // pbrt: L()
-  pub fn emitted_radiance(&self, interaction: &SurfaceInteraction, direction: Vector3<f64>) -> Spectrum {
+  pub fn emitted_radiance(&self, interaction: &SurfaceInteraction, direction: Vector3) -> Spectrum {
     // TODO: This is actually DiffuseAreaLight
     if interaction.common.normal.dot(direction) > 0. {
       self.emitted_color.clone()

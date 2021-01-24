@@ -2,13 +2,13 @@ use super::{Point3, Vector3};
 
 #[derive(Clone, Copy)]
 pub struct Ray {
-  pub origin: Point3<f64>,
-  pub direction: Vector3<f64>,
+  pub origin: Point3,
+  pub direction: Vector3,
   pub time_max: f64,
 }
 
 impl Ray {
-  pub fn reflect(&self, point: Point3<f64>, normal: Vector3<f64>) -> Self {
+  pub fn reflect(&self, point: Point3, normal: Vector3) -> Self {
     Ray {
       origin: point,
       direction: self.direction.reflect(normal),
@@ -30,7 +30,7 @@ impl RayDifferential {
     self.ray_x.direction = Vector3::from(origin) + (self.ray_x.direction - direction) * factor;
   }
 
-  pub fn reflect(&self, point: Point3<f64>, normal: Vector3<f64>) -> Self {
+  pub fn reflect(&self, point: Point3, normal: Vector3) -> Self {
     RayDifferential {
       ray: self.ray.reflect(point, normal),
       ray_x: self.ray_x.reflect(point, normal),

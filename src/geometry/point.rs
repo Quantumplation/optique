@@ -5,7 +5,7 @@ use float_next_after::NextAfter;
 use super::{DOWN, UP, Vector2, Vector3};
 
 #[derive(Default, Copy, Clone, Debug)]
-pub struct Point2<T> {
+pub struct Point2<T = f64> {
   pub x: T,
   pub y: T,
 }
@@ -18,7 +18,7 @@ impl<T> Point2<T> {
 }
 
 #[derive(Default, Copy, Clone, Debug)]
-pub struct Point3<T> {
+pub struct Point3<T = f64> {
   pub x: T,
   pub y: T,
   pub z: T
@@ -30,10 +30,10 @@ impl<T> Point3<T> {
   }
 }
 
-impl Point3<f64> {
-  pub fn offset_for_error(&self, error: Vector3<f64>, normal: Vector3<f64>, reverse: Vector3<f64>) -> Self {
+impl Point3 {
+  pub fn offset_for_error(&self, error: Vector3, normal: Vector3, reverse: Vector3) -> Self {
     let distance = normal.abs().dot(error);
-    let offset: Vector3<_> = if reverse.dot(normal) < 0. {
+    let offset: Vector3 = if reverse.dot(normal) < 0. {
       -normal * distance
     } else {
       normal * distance
@@ -54,7 +54,7 @@ impl Point3<f64> {
   }
 }
 
-impl From<Point2<i32>> for Point2<f64> {
+impl From<Point2<i32>> for Point2 {
   fn from(p: Point2<i32>) -> Self {
     Self { x: p.x as f64, y: p.y as f64 }
   }

@@ -3,36 +3,39 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 use super::{Point2, Point3};
 
 #[derive(Default, Copy, Clone, Debug)]
-pub struct Vector2<T> {
+pub struct Vector2<T = f64> {
   pub x: T,
   pub y: T,
 }
 
 #[derive(Default, Copy, Clone, Debug)]
-pub struct Vector3<T> {
+pub struct Vector3<T = f64> {
   pub x: T,
   pub y: T,
   pub z: T,
 }
 
-impl Vector3<f64> {
-  pub fn new(x: f64, y: f64, z: f64) -> Self {
+impl<T> Vector3<T> {
+  pub fn new(x: T, y: T, z: T) -> Self {
     Vector3 { x, y, z }
   }
+}
+
+impl Vector3 {
   pub fn length_squared(&self) -> f64 {
     self.x * self.x + self.y * self.y + self.z * self.z
   }
   pub fn length(&self) -> f64 {
     self.length_squared().sqrt()
   }
-  pub fn normalized(&self) -> Vector3<f64> {
+  pub fn normalized(&self) -> Vector3 {
     let len = self.length();
     Vector3 { x: self.x / len, y: self.y / len, z: self.z / len }
   }
-  pub fn dot(&self, rhs: Vector3<f64>) -> f64 {
+  pub fn dot(&self, rhs: Vector3) -> f64 {
     self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
   }
-  pub fn cross(&self, rhs: Vector3<f64>) -> Vector3<f64> {
+  pub fn cross(&self, rhs: Vector3) -> Vector3 {
     let (x,y,z) = (self.x, self.y, self.z);
     let (ox, oy, oz) = (rhs.x, rhs.y, rhs.z);
     Vector3 {
@@ -44,7 +47,7 @@ impl Vector3<f64> {
   pub fn abs(&self) -> Self {
     Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
   }
-  pub fn reflect(&self, normal: Vector3<f64>) -> Self {
+  pub fn reflect(&self, normal: Vector3) -> Self {
     // NOTE: assumes the normal is normalized
     let dot = self.dot(normal);
     let offset = normal * 2. * dot;

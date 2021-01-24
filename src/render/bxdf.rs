@@ -23,7 +23,7 @@ bitflags! {
   
   pub struct BxDFSample {
     value: Spectrum,
-    incoming: Vector3<f64>,
+    incoming: Vector3,
     probability_distribution: f64,
     category: BxDFCategory,
   }
@@ -31,11 +31,11 @@ bitflags! {
   mod ShadingCoordinates {
     use crate::geometry::Vector3;
   
-    pub fn abs_cos_theta(w: Vector3<f64>) -> f64 {
+    pub fn abs_cos_theta(w: Vector3) -> f64 {
       w.z.abs()
     }
   
-    pub fn same_hemisphere(a: Vector3<f64>, b: Vector3<f64>) -> bool {
+    pub fn same_hemisphere(a: Vector3, b: Vector3) -> bool {
       a.z * b.z > 0.
     }
   
@@ -44,9 +44,9 @@ bitflags! {
   #[enum_dispatch]
   pub trait BxDF {
     fn category(&self) -> BxDFCategory;
-    fn evaluate(&self, outgoing: Vector3<f64>, incoming: Vector3<f64>) -> Spectrum;
+    fn evaluate(&self, outgoing: Vector3, incoming: Vector3) -> Spectrum;
   
-    fn sample_function(&self, outgoing: Vector3<f64>, sample: &Point2<f64>) -> BxDFSample {
+    fn sample_function(&self, outgoing: Vector3, sample: &Point2) -> BxDFSample {
       // TODO: hemisphere sampling
       let incoming = Vector3::new(
         sample.x,
@@ -64,7 +64,7 @@ bitflags! {
         category: BxDFCategory::NONE,
       }
     }
-    fn hemispherical_directional_reflectance(&self, outgoing: Vector3<f64>, samples: &[Point2<f64>]) -> Spectrum {
+    fn hemispherical_directional_reflectance(&self, outgoing: Vector3, samples: &[Point2]) -> Spectrum {
       let mut result = Spectrum::default();
       for sample in samples {
         let f_sample = self.sample_function(outgoing, sample);
@@ -74,7 +74,7 @@ bitflags! {
       }
       return result;
     }
-    fn hemispherical_hemispherical_reflectance(&self, samples1: &[Point2<f64>], samples2: &[Point2<f64>]) -> Spectrum {
+    fn hemispherical_hemispherical_reflectance(&self, samples1: &[Point2], samples2: &[Point2]) -> Spectrum {
       let mut result = Spectrum::default();
       for (a, b) in samples1.iter().zip(samples2) {
         // TODO: random sampling
@@ -82,7 +82,7 @@ bitflags! {
       }
       return result;
     }
-    fn probability_distribution(&self, outgoing: Vector3<f64>, incoming: Vector3<f64>) -> f64 {
+    fn probability_distribution(&self, outgoing: Vector3, incoming: Vector3) -> f64 {
       if ShadingCoordinates::same_hemisphere(incoming, outgoing) {
         ShadingCoordinates::abs_cos_theta(incoming) * INV_PI
       } else {
@@ -105,7 +105,7 @@ bitflags! {
     fn category(&self) -> BxDFCategory {
       self.original.category()
     }
-    fn evaluate(&self, outgoing: Vector3<f64>, incoming: Vector3<f64>) -> Spectrum {
+    fn evaluate(&self, outgoing: Vector3, incoming: Vector3) -> Spectrum {
       self.scale * self.original.evaluate(outgoing, incoming)
     }
   }

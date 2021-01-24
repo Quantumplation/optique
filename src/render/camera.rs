@@ -55,8 +55,8 @@ pub struct PerspectiveCamera {
   pub shutter_close: f64,
   pub lens_radius: f64,
   pub focal_distance: f64,
-  pub pixel_ray_dx: Vector3<f64>,
-  pub pixel_ray_dy: Vector3<f64>,
+  pub pixel_ray_dx: Vector3,
+  pub pixel_ray_dy: Vector3,
   pub view_area: f64,
 }
 

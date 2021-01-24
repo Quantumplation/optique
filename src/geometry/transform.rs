@@ -17,7 +17,7 @@ impl Transform {
     Transform { matrix: self.inverse.clone(), inverse: self.matrix.clone() }
   }
   
-  pub fn translate(delta: Vector3<f64>) -> Self {
+  pub fn translate(delta: Vector3) -> Self {
     let m = 
       [[1., 0., 0., delta.x],
        [0., 1., 0., delta.y],
@@ -33,7 +33,7 @@ impl Transform {
     Transform::new(Matrix4x4::new(m), Some(Matrix4x4::new(inv)))
   }
 
-  pub fn scale(axis: Vector3<f64>) -> Self {
+  pub fn scale(axis: Vector3) -> Self {
     let m = 
       [[axis.x,     0.,     0.,      0.],
        [    0., axis.y,     0.,      0.],
@@ -65,7 +65,7 @@ impl Transform {
     return Transform::scale(Vector3::new(inv_tan_angle, inv_tan_angle, 1.)) * Transform::new(projection, None);
   }
 
-  pub fn look_at(pos: Point3<f64>, look: Point3<f64>, up: Vector3<f64>) -> Self {
+  pub fn look_at(pos: Point3, look: Point3, up: Vector3) -> Self {
     let mut camera_to_world = Matrix4x4::default();
     let m = &mut camera_to_world.m;
     m[0][3] = pos.x;
@@ -109,10 +109,10 @@ impl Mul for Transform {
     }
 }
 
-impl Mul<Vector3<f64>> for Transform {
-  type Output = Vector3<f64>;
+impl Mul<Vector3> for Transform {
+  type Output = Vector3;
 
-  fn mul(self, rhs: Vector3<f64>) -> Self::Output {
+  fn mul(self, rhs: Vector3) -> Self::Output {
     let matrix = &self.matrix.m;
     let x  = matrix[0][0] * rhs.x + matrix[0][1] * rhs.y + matrix[0][2] * rhs.z;
     let y  = matrix[1][0] * rhs.x + matrix[1][1] * rhs.y + matrix[1][2] * rhs.z;
@@ -121,10 +121,10 @@ impl Mul<Vector3<f64>> for Transform {
   }
 }
 
-impl Mul<Point3<f64>> for Transform {
-  type Output = Point3<f64>;
+impl Mul<Point3> for Transform {
+  type Output = Point3;
 
-  fn mul(self, rhs: Point3<f64>) -> Self::Output {
+  fn mul(self, rhs: Point3) -> Self::Output {
     let matrix = &self.matrix.m;
     let x  = matrix[0][0] * rhs.x + matrix[0][1] * rhs.y + matrix[0][2] * rhs.z + matrix[0][3];
     let y  = matrix[1][0] * rhs.x + matrix[1][1] * rhs.y + matrix[1][2] * rhs.z + matrix[1][3];
@@ -169,10 +169,10 @@ pub trait MulWithError<T = Self> {
   fn mul_with_error_in(&self, other: T, err: Self::Err) -> (Self::Output, Self::Err);
 }
 
-impl MulWithError<Point3<f64>> for Transform {
-  type Output = Point3<f64>;
-  type Err = Vector3<f64>;
-  fn mul_with_error(&self, p: Point3<f64>) -> (Self::Output, Self::Err) {
+impl MulWithError<Point3> for Transform {
+  type Output = Point3;
+  type Err = Vector3;
+  fn mul_with_error(&self, p: Point3) -> (Self::Output, Self::Err) {
     let (x, y, z) = (p.x, p.y, p.z);
     let transformed_point = *self * p;
     let matrix = &self.matrix.m;
@@ -182,7 +182,7 @@ impl MulWithError<Point3<f64>> for Transform {
     let err = Vector3 { x: x_err, y: y_err, z: z_err } * gamma(3);
     (transformed_point, err)
   }
-  fn mul_with_error_in(&self, p: Point3<f64>, err: Vector3<f64>) -> (Self::Output, Self::Err) {
+  fn mul_with_error_in(&self, p: Point3, err: Vector3) -> (Self::Output, Self::Err) {
     let (x, y, z) = (p.x, p.y, p.z);
     let (ex, ey, ez) = (err.x, err.y, err.z);
 
@@ -205,10 +205,10 @@ impl MulWithError<Point3<f64>> for Transform {
   }
 }
 
-impl MulWithError<Vector3<f64>> for Transform {
-  type Output = Vector3<f64>;
-  type Err = Vector3<f64>;
-  fn mul_with_error(&self, p: Vector3<f64>) -> (Self::Output, Self::Err) {
+impl MulWithError<Vector3> for Transform {
+  type Output = Vector3;
+  type Err = Vector3;
+  fn mul_with_error(&self, p: Vector3) -> (Self::Output, Self::Err) {
     let (x, y, z) = (p.x, p.y, p.z);
     let transformed_point = *self * p;
     let matrix = &self.matrix.m;
@@ -218,7 +218,7 @@ impl MulWithError<Vector3<f64>> for Transform {
     let err = Vector3 { x: x_err, y: y_err, z: z_err } * gamma(3);
     (transformed_point, err)
   }
-  fn mul_with_error_in(&self, p: Vector3<f64>, err: Self::Err) -> (Self::Output, Self::Err) {
+  fn mul_with_error_in(&self, p: Vector3, err: Self::Err) -> (Self::Output, Self::Err) {
     let (x, y, z) = (p.x, p.y, p.z);
     let (ex, ey, ez) = (err.x, err.y, err.z);
 
@@ -243,7 +243,7 @@ impl MulWithError<Vector3<f64>> for Transform {
 
 impl MulWithError<Ray> for Transform {
   type Output = Ray;
-  type Err = (Vector3<f64>, Vector3<f64>);
+  type Err = (Vector3, Vector3);
   fn mul_with_error(&self, other: Ray) -> (Self::Output, Self::Err) {
     let (mut origin, origin_err) = self.mul_with_error(other.origin);
     let (direction, dir_err) = self.mul_with_error(other.direction);
