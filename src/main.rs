@@ -49,8 +49,7 @@ fn main() {
             }
         ),
         vec![
-            LightInstance::from(PointLight { position: Point3 { x: 0., y: 0., z: 10. }, color: Spectrum { r: 50., g: 0., b: 0. } }),
-            LightInstance::from(PointLight { position: Point3 { x: 1., y: 5., z: 5. }, color: Spectrum { r: 0., g: 25., b: 25. } })
+            LightInstance::from(PointLight { position: Point3 { x: 1., y: 5., z: 5. }, color: Spectrum { r: 25., g: 25., b: 25. } })
         ],
     );
 

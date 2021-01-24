@@ -1,9 +1,11 @@
+mod bxdf;
 mod integrator;
 mod camera;
 mod film;
 mod sampler;
 mod spectrum;
 mod fresnel;
+pub use bxdf::*;
 pub use integrator::*;
 pub use camera::*;
 pub use film::*;
