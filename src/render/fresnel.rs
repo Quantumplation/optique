@@ -1,5 +1,6 @@
 use super::Spectrum;
 
+#[derive(Clone)]
 pub enum Fresnel {
   Conductor { eta_parallel: Spectrum, eta_perpendicular: Spectrum, absorption: Spectrum },
   Dialectric { eta_parallel: f64, eta_perpendicular: f64 },

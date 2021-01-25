@@ -6,8 +6,12 @@ use super::{Normal3, Point3, Ray, Vector3};
 #[derive(Default, Clone)]
 pub struct InteractionCommon {
   pub point: Point3,
+  pub point_derivative: (Vector3, Vector3),
   pub reverse_ray: Vector3,
   pub normal: Normal3,
+  pub normal_derivative: (Normal3, Normal3),
+  pub shading_normal: Normal3,
+  pub shading_normal_derivative: (Normal3, Normal3),
   pub intersection_time: f64,
   pub error: Vector3,
 }

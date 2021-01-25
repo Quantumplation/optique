@@ -97,14 +97,14 @@ impl<T: Add<Output = T>> Add for Point3<T> {
 }
 
 impl<T: Sub<Output = T>> Sub for Point2<T> {
-  type Output = Self;
+  type Output = Vector2<T>;
 
   fn sub(self, rhs: Self) -> Self::Output {
     Self::Output { x: self.x - rhs.x, y: self.y - rhs.y }
   }
 }
 impl<T: Sub<Output = T>> Sub for Point3<T> {
-  type Output = Self;
+  type Output = Vector3<T>;
 
   fn sub(self, rhs: Self) -> Self::Output {
     Self::Output { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }

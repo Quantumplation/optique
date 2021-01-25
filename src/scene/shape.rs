@@ -77,24 +77,68 @@ impl Shape for SphereShape {
     }
 
     let two_pi = 2. * 3.1415926535;
+    let max_phi = two_pi;
+    let max_theta = two_pi;
     let phi = point_hit.y.atan2(point_hit.x);
     let phi = if phi < 0. { phi + two_pi } else { phi };
 
-    let _u = phi / two_pi;
+    let u = phi / max_phi;
     let theta = (point_hit.z / self.radius).clamp(-1., 1.).acos();
-    let _v = theta / two_pi;
+    let v = theta / max_theta;
 
-    // TODO: better normals?
-    let pos = self.object_to_world * Point3::default();
-    let normal = Vector3::from(point_hit - pos).normalized();
+    let z_radius = Vector3::from(point_hit).length();
+    let inv_radius = 1. / z_radius;
+    let cos_phi = point_hit.x * inv_radius;
+    let sin_phi = point_hit.y * inv_radius;
+
+    // Compute point partial derivatives
+    let dpdu = Vector3::new(-max_phi * point_hit.y, max_phi * point_hit.x, 0.);
+    let dpdv: Vector3 = Vector3::new(
+      point_hit.z * cos_phi,
+      point_hit.z * sin_phi,
+      -radius.value * theta.sin()
+    ) * max_phi;
+
+    // Compute second order partial derivatives
+    let d2pduu = Vector3::new(point_hit.x, point_hit.y, 0.) * -max_phi * max_phi;
+    let d2pduv = Vector3::new(-sin_phi, cos_phi, 0.) * max_theta * point_hit.z * max_phi;
+    let d2pdvv = Vector3::new(point_hit.x, point_hit.y, point_hit.z) * -max_theta * max_theta;
+
+    // Compute coefficients of the fundamental form, to compute partial derivatives of the normal
+    let E = dpdu.dot(dpdu);
+    let F = dpdu.dot(dpdv);
+    let G = dpdv.dot(dpdv);
+
+    let normal = dpdu.cross(dpdv).normalized();
+
+    let e = normal.dot(d2pduu);
+    let f = normal.dot(d2pduv);
+    let g = normal.dot(d2pdvv);
+
+    // Compute the normal derivatives
+    let inv_egf2 = 1. / (E * G - F * F);
+    let dndu = Normal3::from(
+      dpdu * (f * F - e * G) * inv_egf2 +
+      dpdv * (e * F - f * E) * inv_egf2
+    );
+    let dndv = Normal3::from(
+      dpdu * (g * F - f * G) * inv_egf2 +
+      dpdv * (f * F - g * E) * inv_egf2
+    );
     
+    let normal = Normal3::from(normal);
+
     let error = Vector3::from(point_hit).abs() * gamma(5);
 
     Some(SurfaceInteraction {
       common: InteractionCommon {
         point: self.object_to_world * point_hit, // Make sure to translate the point back to world coordinates
+        point_derivative: (dpdu, dpdv),
         reverse_ray: -ray.direction,
-        normal: Normal3::from(normal),
+        normal,
+        normal_derivative: (dndu, dndv),
+        shading_normal: normal,
+        shading_normal_derivative: (dndu, dndv),
         intersection_time: t_collision.value,
         error,
       },
