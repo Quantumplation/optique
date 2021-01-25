@@ -1,4 +1,4 @@
-use std::{env::current_dir, net::Incoming, sync::Arc};
+use std::{sync::Arc};
 
 use bitflags::bitflags;
 use enum_dispatch::enum_dispatch;
@@ -25,7 +25,7 @@ mod shading_coordinates {
 pub const MAX_BXDF: usize = 8;
 /// Bidirectional Scattering Distribution Function
 /// Represents the data needed to compute how light scatters on a surface
-struct BSDF {
+pub struct BSDF {
   /// A relative index describing how much light bends at the boundary
   /// Should be 1 for opaque objects
   index_of_refraction: f64,
@@ -44,7 +44,7 @@ struct BSDF {
 }
 
 impl BSDF {
-  pub fn new(interaction: SurfaceInteraction, index_of_refraction: f64) -> Self {
+  pub fn new(interaction: &SurfaceInteraction, index_of_refraction: f64) -> Self {
     let shading_normal = interaction.common.shading_normal;
     let tangent_s = interaction.common.shading_normal_derivative.0.normalized();
     let tangent_t = shading_normal.cross(tangent_s);
@@ -76,7 +76,7 @@ impl<'a> Iterator for BxDFIterator<'a> {
       } else if let Some(component) = &self.components[self.curr] {
         // Increment for the next time through before returning
         self.curr += 1;
-        if component.category().contains(self.category) {
+        if self.category.contains(component.category()) {
           return Some(&component);
         } else {
           continue;
@@ -89,26 +89,6 @@ impl<'a> Iterator for BxDFIterator<'a> {
 }
 
 impl BSDF {
-  fn evaluate_local(&self, outgoing: Vector3, incoming: Vector3, category: BxDFCategory, is_reflection: bool) -> Spectrum {
-    if outgoing.z == 0. {
-      return Spectrum::default();
-    }
-
-    let mut result = Spectrum::default();
-
-    for component in self.matching_components(category) {
-      let component_category = component.category();
-      let is_reflective = component_category.contains(BxDFCategory::REFLECTION);
-      let is_transmissive = component_category.contains(BxDFCategory::TRANSMISSION);
-
-      if (is_reflection && is_reflective) || (!is_reflective && is_transmissive) {
-        result += component.evaluate(outgoing, incoming);
-      }
-    }
-
-    return result;
-  }
-
   pub fn evaluate(&self, outgoing_world: Vector3, incoming_world: Vector3, category: BxDFCategory) -> Spectrum {
     let incoming = self.transform_world_to_local(incoming_world);
     let outgoing = self.transform_world_to_local(outgoing_world);
@@ -167,16 +147,7 @@ impl BSDF {
     // If we chose something other than specular,
     // we may need to weight the sample appropriately among other components
     if !component.category().contains(BxDFCategory::SPECULAR) && matching_components > 1 {
-      for (idx, other) in self.matching_components(category).enumerate() {
-        if idx == chosen_idx {
-          continue;
-        }
-        pdf += other.probability_distribution(outgoing, sample.incoming);
-      }
-    }
-    
-    if matching_components > 1 {
-      pdf /= matching_components as f64;
+      pdf = self.probability_distribution_local(outgoing, sample.incoming, category, (chosen_idx, pdf));
     }
     
     let mut value = sample.value;
@@ -196,12 +167,73 @@ impl BSDF {
     };
   }
 
+  pub fn hemispherical_directional_reflectance(&self, outgoing_world: Vector3, samples: &[Point2], category: BxDFCategory) -> Spectrum {
+    let outgoing = self.transform_world_to_local(outgoing_world);
+    let mut result = Spectrum::default();
+    for component in self.matching_components(category) {
+      result += component.hemispherical_directional_reflectance(outgoing, samples);
+    }
+    return result;
+  }
+
+  pub fn hemispherical_hemispherical_reflectance(&self, samples1: &[Point2], samples2: &[Point2], category: BxDFCategory) -> Spectrum {
+    let mut result = Spectrum::default();
+    for component in self.matching_components(category) {
+      result += component.hemispherical_hemispherical_reflectance(samples1, samples2);
+    }
+    return result;
+  }
+
+  pub fn probability_distribution(&self, outgoing_world: Vector3, incoming_world: Vector3, category: BxDFCategory) -> f64 {
+    let outgoing = self.transform_world_to_local(outgoing_world);
+    let incoming = self.transform_world_to_local(incoming_world);
+    self.probability_distribution_local(outgoing, incoming, category, (self.components.len(), 0.))
+  }
+
+  fn evaluate_local(&self, outgoing: Vector3, incoming: Vector3, category: BxDFCategory, is_reflection: bool) -> Spectrum {
+    if outgoing.z == 0. {
+      return Spectrum::default();
+    }
+
+    let mut result = Spectrum::default();
+
+    for component in self.matching_components(category) {
+      let component_category = component.category();
+      let is_reflective = component_category.contains(BxDFCategory::REFLECTION);
+      let is_transmissive = component_category.contains(BxDFCategory::TRANSMISSION);
+
+      if (is_reflection && is_reflective) || (!is_reflective && is_transmissive) {
+        result += component.evaluate(outgoing, incoming);
+      }
+    }
+
+    return result;
+  }
+
+  fn probability_distribution_local(&self, outgoing: Vector3, incoming: Vector3, category: BxDFCategory, precomputed: (usize, f64)) -> f64 {
+    let mut pdf = 0.;
+    let mut count = 0;
+    for (idx, other) in self.matching_components(category).enumerate() {
+      count += 1;
+      if idx == precomputed.0 {
+        pdf += precomputed.1;
+        continue;
+      }
+      pdf += other.probability_distribution(outgoing, incoming);
+    }
+  
+    if count > 1 {
+      pdf /= count as f64;
+    }
+    return pdf;
+  }
+
   pub fn add_component(&mut self, bxdf: BxDFInstance) {
     self.components[self.num_components] = Some(bxdf);
     self.num_components += 1;
   }
 
-  pub fn matching_components(&self, category: BxDFCategory) -> BxDFIterator {
+  fn matching_components(&self, category: BxDFCategory) -> BxDFIterator {
     BxDFIterator {
       curr: 0,
       components: &self.components[..],
@@ -327,8 +359,8 @@ impl BxDF for ScaledBxDF {
 
 #[derive(Clone)]
 pub struct SpecularReflection {
-  color_scale: Spectrum,
-  fresnel_properties: Fresnel,
+  pub color_scale: Spectrum,
+  pub fresnel_properties: Fresnel,
 }
 
 impl BxDF for SpecularReflection {

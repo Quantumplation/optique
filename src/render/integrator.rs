@@ -4,7 +4,7 @@ use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
 use crate::{geometry::{Point2, Ray, RayDifferential, SurfaceInteraction}, scene::{Light, Scene}};
 
-use super::{Camera, CameraInstance, RadianceProblems, Sampler, SamplerInstance, Spectrum};
+use super::{BSDF, BxDFCategory, Camera, CameraInstance, Fresnel, RadianceProblems, Sampler, SamplerInstance, Spectrum, SpecularReflection};
 
 #[enum_dispatch]
 pub trait Integrator {
@@ -155,14 +155,22 @@ impl SamplerIntegrator for WhittedIntegrator {
         continue;
       }
       
-      // TODO: evaluate bsdf
+      // TODO: dummy BSDF
+      let mut bsdf = BSDF::new(&interaction, 1.0);
+      bsdf.add_component(SpecularReflection {
+        color_scale: Spectrum { r: 0.576, g: 0.859, b: 0.475 },
+        fresnel_properties: Fresnel::NoOp,
+      }.into());
+      let value = bsdf.evaluate(rd.ray.direction, radiance_sample.incident_direction, BxDFCategory::ALL);
 
-      let occlusion_ray = &radiance_sample.interactions.0.ray_between(&radiance_sample.interactions.1);
-      let occluded = scene.any_intersect(occlusion_ray);
-      if !occluded {
-        // TODO(pi): Should this be shading normal?
-        let contribution = radiance_sample.incident_direction.dot(interaction.common.normal.into()).abs() / radiance_sample.probability_distribution;
-        result += radiance_sample.color * contribution;
+      if !value.is_black() {
+        let occlusion_ray = &radiance_sample.interactions.0.ray_between(&radiance_sample.interactions.1);
+        let occluded = scene.any_intersect(occlusion_ray);
+        if !occluded {
+          // TODO(pi): Should this be shading normal?
+          let contribution = radiance_sample.incident_direction.dot(interaction.common.normal.into()).abs() / radiance_sample.probability_distribution;
+          result += value * radiance_sample.color * contribution;
+        }
       }
     }
 
