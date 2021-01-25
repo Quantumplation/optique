@@ -1,6 +1,6 @@
 use enum_dispatch::enum_dispatch;
 
-use crate::geometry::{Bounds3, ErrorFloat, InteractionCommon, MulWithError, Point3, Ray, SurfaceInteraction, Transform, Vector3, gamma};
+use crate::geometry::{Bounds3, ErrorFloat, InteractionCommon, MulWithError, Normal3, Point3, Ray, SurfaceInteraction, Transform, Vector3, gamma};
 
 #[enum_dispatch]
 pub trait Shape {
@@ -94,7 +94,7 @@ impl Shape for SphereShape {
       common: InteractionCommon {
         point: self.object_to_world * point_hit, // Make sure to translate the point back to world coordinates
         reverse_ray: -ray.direction,
-        normal,
+        normal: Normal3::from(normal),
         intersection_time: t_collision.value,
         error,
       },

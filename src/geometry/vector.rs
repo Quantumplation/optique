@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use super::{Point2, Point3};
+use super::{Normal3, Point2, Point3};
 
 #[derive(Default, Copy, Clone, Debug)]
 pub struct Vector2<T = f64> {
@@ -35,10 +35,10 @@ impl Vector3 {
   pub fn dot(&self, rhs: Vector3) -> f64 {
     self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
   }
-  pub fn cross(&self, rhs: Vector3) -> Vector3 {
+  pub fn cross(&self, rhs: Self) -> Self {
     let (x,y,z) = (self.x, self.y, self.z);
     let (ox, oy, oz) = (rhs.x, rhs.y, rhs.z);
-    Vector3 {
+    Self {
       x: (y * oz) - (z * oy),
       y: (z * ox) - (x * oz),
       z: (x * oy) - (y * ox)
@@ -47,10 +47,10 @@ impl Vector3 {
   pub fn abs(&self) -> Self {
     Self { x: self.x.abs(), y: self.y.abs(), z: self.z.abs() }
   }
-  pub fn reflect(&self, normal: Vector3) -> Self {
+  pub fn reflect(&self, normal: Normal3) -> Self {
     // NOTE: assumes the normal is normalized
-    let dot = self.dot(normal);
-    let offset = normal * 2. * dot;
+    let dot = self.dot(normal.into());
+    let offset: Vector3 = Into::<Vector3>::into(normal) * 2. * dot;
     return *self - offset;
   }
 }

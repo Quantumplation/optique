@@ -11,7 +11,7 @@ impl Ray {
   pub fn reflect(&self, point: Point3, normal: Vector3) -> Self {
     Ray {
       origin: point,
-      direction: self.direction.reflect(normal),
+      direction: self.direction.reflect(normal.into()),
       time_max: self.time_max,
     }
   }

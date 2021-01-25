@@ -1,13 +1,13 @@
 use crate::{render::Spectrum, scene::AreaLight};
 
-use super::{Point3, Ray, Vector3};
+use super::{Normal3, Point3, Ray, Vector3};
 
 
 #[derive(Default, Clone)]
 pub struct InteractionCommon {
   pub point: Point3,
   pub reverse_ray: Vector3,
-  pub normal: Vector3,
+  pub normal: Normal3,
   pub intersection_time: f64,
   pub error: Vector3,
 }
@@ -30,7 +30,8 @@ pub struct SurfaceInteraction {
 impl SurfaceInteraction {
   pub fn emitted_radiance(&self) -> Spectrum {
     if let Some(emission) = &self.emissive_properties {
-      emission.emitted_radiance(&self, self.common.normal)
+      // TOOD(pi): Should this be shading normal?
+      emission.emitted_radiance(&self, self.common.normal.into())
     } else {
       Spectrum::default()
     }

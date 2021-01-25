@@ -2,7 +2,7 @@ use std::ops::{Add, Div, Mul, Sub};
 
 use float_next_after::NextAfter;
 
-use super::{DOWN, UP, Vector2, Vector3};
+use super::{DOWN, Normal3, UP, Vector2, Vector3};
 
 #[derive(Default, Copy, Clone, Debug)]
 pub struct Point2<T = f64> {
@@ -31,13 +31,13 @@ impl<T> Point3<T> {
 }
 
 impl Point3 {
-  pub fn offset_for_error(&self, error: Vector3, normal: Vector3, reverse: Vector3) -> Self {
-    let distance = normal.abs().dot(error);
-    let offset: Vector3 = if reverse.dot(normal) < 0. {
+  pub fn offset_for_error(&self, error: Vector3, normal: Normal3, reverse: Vector3) -> Self {
+    let distance = normal.abs().dot(error.into());
+    let offset: Vector3 = if reverse.dot(normal.into()) < 0. {
       -normal * distance
     } else {
       normal * distance
-    };
+    }.into();
 
     let mut origin = *self + offset;
     // Round the offset point away from p

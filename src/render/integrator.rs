@@ -36,7 +36,7 @@ pub trait SamplerIntegrator {
     let pdf = 1.;
     let color_sample = Spectrum { r: 1., g: 1., b: 1. };
 
-    let factor = incident_direction.dot(normal);
+    let factor = incident_direction.dot(normal.into());
     if pdf > 0. && !color_sample.is_black() && factor != 0. {
       let rd = RayDifferential {
         ray: Ray { origin: surface_interaction.common.point, direction: incident_direction, time_max: rd.ray.time_max },
@@ -160,7 +160,8 @@ impl SamplerIntegrator for WhittedIntegrator {
       let occlusion_ray = &radiance_sample.interactions.0.ray_between(&radiance_sample.interactions.1);
       let occluded = scene.any_intersect(occlusion_ray);
       if !occluded {
-        let contribution = radiance_sample.incident_direction.dot(interaction.common.normal).abs() / radiance_sample.probability_distribution;
+        // TODO(pi): Should this be shading normal?
+        let contribution = radiance_sample.incident_direction.dot(interaction.common.normal.into()).abs() / radiance_sample.probability_distribution;
         result += radiance_sample.color * contribution;
       }
     }

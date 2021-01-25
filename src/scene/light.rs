@@ -86,7 +86,8 @@ impl AreaLight {
   // pbrt: L()
   pub fn emitted_radiance(&self, interaction: &SurfaceInteraction, direction: Vector3) -> Spectrum {
     // TODO: This is actually DiffuseAreaLight
-    if interaction.common.normal.dot(direction) > 0. {
+    // TODO: should this be shading normal?
+    if direction.dot(interaction.common.normal.into()) > 0. {
       self.emitted_color.clone()
     } else {
       Spectrum::default()

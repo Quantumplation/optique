@@ -1,6 +1,6 @@
 use std::{ops::Mul};
 
-use super::{Matrix4x4, Point3, Ray, Vector3, TO_RADIANS, gamma};
+use super::{Matrix4x4, Normal3, Point3, Ray, TO_RADIANS, Vector3, gamma};
 
 #[derive(Default, Copy, Clone)]
 pub struct Transform {
@@ -136,6 +136,21 @@ impl Mul<Point3> for Transform {
       let (x, y, z) = (x / wp, y / wp, z / wp);
       return Point3 { x, y, z };
     }
+  }
+}
+
+impl Mul<Normal3> for Transform {
+  type Output = Normal3;
+
+  fn mul(self, rhs: Normal3) -> Self::Output {
+    // Normals transform contravariantly, i.e. with respect to the inverse transpose
+    // in order to stay perpendicular to the transformed surface
+    let inv = &self.inverse.m;
+    let x = inv[0][0] * rhs.x + inv[1][0] * rhs.y + inv[2][0] * rhs.z;
+    let y = inv[0][1] * rhs.x + inv[1][1] * rhs.y + inv[2][1] * rhs.z;
+    let z = inv[0][2] * rhs.x + inv[1][2] * rhs.y + inv[2][2] * rhs.z;
+
+    Self::Output { x, y, z }
   }
 }
   
