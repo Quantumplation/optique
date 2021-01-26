@@ -49,12 +49,12 @@ fn main() {
             }
         ),
         vec![
-            LightInstance::from(PointLight { position: Point3 { x: 1., y: 5., z: 5. }, color: Spectrum { r: 250., g: 250., b: 250. } })
+            LightInstance::from(PointLight { position: Point3 { x: 1., y: 0., z: 5. }, color: Spectrum { r: 50., g: 50., b: 50. } })
         ],
     );
 
     let cam_trans = Transform::look_at(
-        Point3 { x: 5., y: 5.0, z: 3. },
+        Point3 { x: 0., y: 0.0, z: 5. },
         Point3 { x: 0., y: 0., z: -2.5 },
         Vector3 { x: 0., y: 1., z: 0. }
     ).inverse();

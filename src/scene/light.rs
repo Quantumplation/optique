@@ -50,7 +50,7 @@ pub struct PointLight {
 impl Light for PointLight {
   fn preprocess(&mut self, _: &Scene) {}
   fn power(&self) -> Spectrum { self.color * 4. * 3.141592 }
-  fn background_radiance(&self, _: &Ray) -> Spectrum { Spectrum::default() }
+  fn background_radiance(&self, _: &Ray) -> Spectrum { Spectrum { r: 0.1, g: 0.1, b: 0.1 } }
   fn sample_radiance(&self, interaction: &SurfaceInteraction, _: Point2) -> RadianceSample {
     let offset = Vector3::from(self.position - interaction.common.point);
     let incident_direction = offset.normalized();
@@ -78,7 +78,7 @@ impl Light for AreaLight {
     fn preprocess(&mut self, _scene: &Scene) {}
 
     fn power(&self) -> Spectrum { Spectrum::default() }
-    fn background_radiance(&self, _ray: &Ray) -> Spectrum { Spectrum::default() }
+    fn background_radiance(&self, _ray: &Ray) -> Spectrum { Spectrum { r: 1., g: 1., b: 1. } }
     fn sample_radiance(&self, _interaction: &SurfaceInteraction, _point: Point2) -> RadianceSample { RadianceSample::default() }
 }
 

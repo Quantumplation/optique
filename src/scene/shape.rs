@@ -1,6 +1,6 @@
 use enum_dispatch::enum_dispatch;
 
-use crate::geometry::{Bounds3, ErrorFloat, InteractionCommon, MulWithError, Normal3, Point3, Ray, SurfaceInteraction, Transform, Vector3, gamma};
+use crate::geometry::{Bounds3, ErrorFloat, InteractionCommon, MulWithError, Normal3, PI, Point3, Ray, SurfaceInteraction, Transform, Vector3, gamma};
 
 #[enum_dispatch]
 pub trait Shape {
@@ -73,10 +73,10 @@ impl Shape for SphereShape {
     let mut point_hit: Point3<_> = point_hit * (self.radius / Vector3::from(point_hit).length());
     // Avoid 0 vectors
     if point_hit.x == 0. && point_hit.y == 0. {
-      point_hit.x = 1e-5 * self.radius;
+      point_hit.x = 1e-10 * self.radius;
     }
 
-    let two_pi = 2. * 3.1415926535;
+    let two_pi = 2. * PI;
     let max_phi = two_pi;
     let max_theta = two_pi;
     let phi = point_hit.y.atan2(point_hit.x);
