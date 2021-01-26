@@ -86,7 +86,8 @@ impl Shape for SphereShape {
     let theta = (point_hit.z / self.radius).clamp(-1., 1.).acos();
     let v = theta / max_theta;
 
-    let z_radius = Vector3::from(point_hit).length();
+    // NOTE: compute for a given theta, what radius circle does a cross section of the circle make?
+    let z_radius = (point_hit.x * point_hit.x + point_hit.y * point_hit.y).sqrt();
     let inv_radius = 1. / z_radius;
     let cos_phi = point_hit.x * inv_radius;
     let sin_phi = point_hit.y * inv_radius;

@@ -15,3 +15,5 @@ This folder has screenshots of various milestones in the development of the deve
 |<img src="./007_fov.png" width="100" height="100">      | 2021-01-15T02:35 | Implements camera transforms for a perspective camera correctly, so we can have field-of-view
 |<img src="./008_shadows.png" width="100" height="100">  | 2021-01-21T01:58 | After working through subtle transform bugs, occlusion is working, meaning we cast shadows!
 |<img src="./009_spec_refl.png" width="100" height="100">| 2021-01-21T01:58 | Specular reflection! Completely skips BSDFs / material properties
+|<img src="./010_matte.png" width="100" height="100">    | 2021-01-26T00:43 | Implemented matte materials (angle 1)
+|<img src="./011_matte_2.png" width="100" height="100">  | 2021-01-26T00:44 | Implemented matte materials (angle 2)
