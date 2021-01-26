@@ -4,7 +4,7 @@ use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
 use crate::{geometry::{Point2, Ray, RayDifferential, SurfaceInteraction}, scene::{Light, Scene}};
 
-use super::{BSDF, BxDFCategory, Camera, CameraInstance, Fresnel, RadianceProblems, Sampler, SamplerInstance, Spectrum, SpecularReflection};
+use super::{BSDF, BxDFCategory, Camera, CameraInstance, Fresnel, LambertianReflection, RadianceProblems, Sampler, SamplerInstance, Spectrum, SpecularReflection};
 
 #[enum_dispatch]
 pub trait Integrator {
@@ -157,9 +157,12 @@ impl SamplerIntegrator for WhittedIntegrator {
       
       // TODO: dummy BSDF
       let mut bsdf = BSDF::new(&interaction, 1.0);
-      bsdf.add_component(SpecularReflection {
-        color_scale: Spectrum { r: 0.576, g: 0.859, b: 0.475 },
-        fresnel_properties: Fresnel::NoOp,
+      // bsdf.add_component(SpecularReflection {
+      //   color_scale: ,
+      //   fresnel_properties: Fresnel::NoOp,
+      // }.into());
+      bsdf.add_component(LambertianReflection {
+        scattered_color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }
       }.into());
       let value = bsdf.evaluate(rd.ray.direction, radiance_sample.incident_direction, BxDFCategory::ALL);
 
