@@ -30,16 +30,24 @@ pub trait SamplerIntegrator {
   fn preprocess(&mut self, scene: &Scene);
   fn light_along_ray(&self, rd: RayDifferential, scene: &Scene, sampler: &SamplerInstance, arena: &Bump, depth: u32) -> Spectrum;
   fn specular_reflect(&self, rd: RayDifferential, surface_interaction: SurfaceInteraction, scene: &Scene, sampler: &SamplerInstance, arena: &Bump, depth: u32) -> Spectrum {
-    // TODO: BSDF sampling
-    let normal = surface_interaction.common.normal;
-    let incident_direction = -surface_interaction.common.reverse_ray.reflect(normal);
-    let pdf = 1.;
-    let color_sample = Spectrum { r: 1., g: 1., b: 1. };
+    // TODO: Material BSDF
+    let mut bsdf = BSDF::new(&surface_interaction, 1.0);
+    bsdf.add_component(LambertianReflection {
+      scattered_color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }
+    }.into());
 
-    let factor = incident_direction.dot(normal.into());
+    let outgoing = surface_interaction.common.reverse_ray;
+    let sample = bsdf.sample_function(outgoing, &Point2::new(0.5, 0.5), BxDFCategory::REFLECTION | BxDFCategory::SPECULAR);
+
+    let normal = surface_interaction.common.shading_normal;
+    let incoming = sample.incoming;
+    let pdf = sample.probability_distribution;
+    let color_sample = sample.value;
+
+    let factor = incoming.dot(normal.into()).abs();
     if pdf > 0. && !color_sample.is_black() && factor != 0. {
       let rd = RayDifferential {
-        ray: Ray { origin: surface_interaction.common.point, direction: incident_direction, time_max: rd.ray.time_max },
+        ray: Ray { origin: surface_interaction.common.point, direction: incoming, time_max: rd.ray.time_max },
         ray_x: rd.ray_x, // TODO: compute these
         ray_y: rd.ray_y,
       };
@@ -144,6 +152,7 @@ impl SamplerIntegrator for WhittedIntegrator {
     }
 
     let interaction = interaction.unwrap();
+    let outgoing = interaction.common.reverse_ray;
     // If we hit something, it might be emitting it's own light, so add in that contribution
     result += interaction.emitted_radiance();
 
@@ -154,6 +163,7 @@ impl SamplerIntegrator for WhittedIntegrator {
       if radiance_sample.color.is_black() || radiance_sample.probability_distribution == 0. {
         continue;
       }
+      let incoming = radiance_sample.incident_direction;
       
       // TODO: dummy BSDF
       let mut bsdf = BSDF::new(&interaction, 1.0);
@@ -164,14 +174,13 @@ impl SamplerIntegrator for WhittedIntegrator {
       bsdf.add_component(LambertianReflection {
         scattered_color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }
       }.into());
-      let value = bsdf.evaluate(rd.ray.direction, radiance_sample.incident_direction, BxDFCategory::ALL);
+      let value = bsdf.evaluate(outgoing, incoming, BxDFCategory::ALL);
 
       if !value.is_black() {
         let occlusion_ray = &radiance_sample.interactions.0.ray_between(&radiance_sample.interactions.1);
         let occluded = scene.any_intersect(occlusion_ray);
         if !occluded {
-          // TODO(pi): Should this be shading normal?
-          let contribution = radiance_sample.incident_direction.dot(interaction.common.normal.into()).abs() / radiance_sample.probability_distribution;
+          let contribution = incoming.dot(interaction.common.shading_normal.into()).abs() / radiance_sample.probability_distribution;
           result += value * radiance_sample.color * contribution;
         }
       }

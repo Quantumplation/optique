@@ -273,10 +273,10 @@ bitflags! {
   }
 }
 pub struct BxDFSample {
-  value: Spectrum,
-  incoming: Vector3,
-  probability_distribution: f64,
-  category: BxDFCategory,
+  pub value: Spectrum,
+  pub incoming: Vector3,
+  pub probability_distribution: f64,
+  pub category: BxDFCategory,
 }
 
 #[enum_dispatch]
