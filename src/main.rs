@@ -30,34 +30,46 @@ fn main() {
         unimplemented!("Reading multiple files is currently unimplemented!");
     };
     
-    let s1 = Transform::translate(Vector3 { x: 0., y: 0., z: -7. });
-    let s2 = Transform::translate(Vector3 { x: 0., y: 0., z: 0. });
+    let s1 = Transform::translate(Vector3 { x: 3.75, y: 0., z: -7. });
+    let s2 = Transform::translate(Vector3 { x: 1.25, y: 0., z: -7. });
+    let s3 = Transform::translate(Vector3 { x: -1.25, y: 0., z: -7. });
+    let s4 = Transform::translate(Vector3 { x: -3.75, y: 0., z: -7. });
 
     let scene = Scene::new(
         PrimitiveInstance::from(
             PrimitiveList {
                 primitives: vec![
                     PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { object_to_world: s1, radius: 4. }),
+                        shape: ShapeInstance::from(SphereShape { object_to_world: s1, radius: 1. }),
                         material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
                         emission: Some(AreaLight { emitted_color: Spectrum::default() })
                     }),
                     PrimitiveInstance::from(GeometricPrimitive {
                         shape: ShapeInstance::from(SphereShape { object_to_world: s2, radius: 1. }),
-                        material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
+                        material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 20. }.into()),
+                        emission: None
+                    }),
+                    PrimitiveInstance::from(GeometricPrimitive {
+                        shape: ShapeInstance::from(SphereShape { object_to_world: s3, radius: 1. }),
+                        material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 50. }.into()),
+                        emission: None
+                    }),
+                    PrimitiveInstance::from(GeometricPrimitive {
+                        shape: ShapeInstance::from(SphereShape { object_to_world: s4, radius: 1. }),
+                        material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 80. }.into()),
                         emission: None
                     }),
                 ]
             }
         ),
         vec![
-            LightInstance::from(PointLight { position: Point3 { x: 0., y: 0., z: 15. }, color: Spectrum { r: 200., g: 200., b: 200. } }),
+            LightInstance::from(PointLight { position: Point3 { x: 0., y: 0., z: 10. }, color: Spectrum { r: 200., g: 200., b: 200. } }),
         ],
     );
 
     let cam_trans = Transform::look_at(
-        Point3 { x: 5., y: 5.0, z: 3. },
-        Point3 { x: 0., y: 0., z: -2.5 },
+        Point3 { x: 0., y: 5.0, z: 5. },
+        Point3 { x: 0., y: 0., z: -7. },
         Vector3 { x: 0., y: 1., z: 0. }
     ).inverse();
     let mut i = WhittedIntegrator::new(

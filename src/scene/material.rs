@@ -1,6 +1,6 @@
 use bumpalo::Bump;
 
-use crate::{geometry::{Intersection}, render::{BSDF, BxDFInstance, LambertianReflection, Spectrum}};
+use crate::{geometry::{Intersection}, render::{BSDF, BxDFInstance, LambertianReflection, OrenNayar, Spectrum}};
 
 pub enum TransportMode {
   Radiance,
@@ -45,7 +45,8 @@ impl Material for Matte {
       let lambert = arena.alloc(BxDFInstance::from(LambertianReflection { scattered_color: self.color }));
       bsdf.add_component(lambert);
     } else {
-      // TODO: OrenNavar
+      let oren_nayar = arena.alloc(BxDFInstance::from(OrenNayar::new(self.color, self.roughness)));
+      bsdf.add_component(oren_nayar);
     }
     return bsdf;
   }

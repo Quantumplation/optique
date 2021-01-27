@@ -17,3 +17,4 @@ This folder has screenshots of various milestones in the development of the deve
 |<img src="./009_spec_refl.png" width="100" height="100">| 2021-01-21T01:58 | Specular reflection! Completely skips BSDFs / material properties
 |<img src="./010_matte.png" width="100" height="100">    | 2021-01-26T00:43 | Implemented matte materials (angle 1)
 |<img src="./011_matte_2.png" width="100" height="100">  | 2021-01-26T00:44 | Implemented matte materials (angle 2)
+|<img src="./012_orennayar.png" width="100" height="100">| 2021-01-26T20:54 | Implemented Oren-nayar microfacet, to control roughness
