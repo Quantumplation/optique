@@ -2,7 +2,7 @@ use enum_dispatch::enum_dispatch;
 
 use crate::geometry::{Bounds3, Intersection, Ray};
 
-use super::{SphereShape, DiskShape};
+use super::{SphereShape, DiskShape, TriangleShape};
 
 #[enum_dispatch]
 pub trait Shape {
@@ -15,6 +15,7 @@ pub enum ShapeInstance {
   NullShape,
   SphereShape,
   DiskShape,
+  TriangleShape,
 }
 
 pub struct NullShape {}

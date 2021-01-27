@@ -7,10 +7,10 @@ mod scene;
 use std::{path::PathBuf, sync::Arc, unimplemented};
 
 use clap::Clap;
-use geometry::{Bounds2, Point2, Point3, Transform, Vector3};
+use geometry::{Bounds2, Normal3, Point2, Point3, Transform, Vector3};
 use options::*;
 use render::*;
-use scene::{AreaLight, DiskShape, GeometricPrimitive, LightInstance, Matte, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
+use scene::{AreaLight, DiskShape, GeometricPrimitive, LightInstance, Matte, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape, TriangleMesh};
 
 fn main() {
     let options: Options = Options::parse();
@@ -37,37 +37,54 @@ fn main() {
     let s2 = Transform::translate(Vector3 { x: 1.25, y: 0., z: -7. });
     let s3 = Transform::translate(Vector3 { x: -1.25, y: 0., z: -7. });
     let s4 = Transform::translate(Vector3 { x: -3.75, y: 0., z: -7. });
+    let s5 = Transform::translate(Vector3::new(-1.5, 0., -5.));
+
+    let mesh = Arc::new(TriangleMesh::new(
+        s5,
+        &[0,1,2],
+        &[Point3::new(0., 0., 0.), Point3::new(0., 1., 0.), Point3::new(1., 0., 0.)],
+        &[Normal3::new(0., 0., 1.), Normal3::new(0., 0., 1.), Normal3::new(0., 0., 1.)],
+        &[Vector3::new(0., 1., 0.), Vector3::new(1., -1., 0.), Vector3::new(-1., 0., 0.)],
+    ));
+    let tris = mesh.to_triangles();
+    let mut prims: Vec<PrimitiveInstance> = tris.into_iter().map(|t| GeometricPrimitive {
+        shape: t,
+        emission: None,
+        material: Some(Matte { color: Spectrum { r: 0.5, g: 0.7, b: 0.7 }, roughness: 0. }.into()),
+    }.into()).collect();
+
+    prims.append(&mut vec![
+        GeometricPrimitive {
+            shape: DiskShape { object_to_world: s0, height: 0., radius: 20., inner_radius: 1.}.into(),
+            material: Some(Matte { color: Spectrum { r: 0.8, g: 0.3, b: 0.2 }, roughness: 0. }.into()),
+            emission: None,
+        }.into(),
+        GeometricPrimitive {
+            shape: SphereShape { object_to_world: s1, radius: 1. }.into(),
+            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
+            emission: Some(AreaLight { emitted_color: Spectrum::default() })
+        }.into(),
+        GeometricPrimitive {
+            shape: SphereShape { object_to_world: s2, radius: 1. }.into(),
+            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 20. }.into()),
+            emission: None
+        }.into(),
+        GeometricPrimitive {
+            shape: SphereShape { object_to_world: s3, radius: 1. }.into(),
+            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 50. }.into()),
+            emission: None
+        }.into(),
+        GeometricPrimitive {
+            shape: SphereShape { object_to_world: s4, radius: 1. }.into(),
+            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 80. }.into()),
+            emission: None
+        }.into(),
+    ]);
 
     let scene = Scene::new(
         PrimitiveInstance::from(
             PrimitiveList {
-                primitives: vec![
-                    GeometricPrimitive {
-                        shape: DiskShape { object_to_world: s0, height: 0., radius: 20., inner_radius: 1.}.into(),
-                        material: Some(Matte { color: Spectrum { r: 0.8, g: 0.3, b: 0.2 }, roughness: 0. }.into()),
-                        emission: None,
-                    }.into(),
-                    GeometricPrimitive {
-                        shape: SphereShape { object_to_world: s1, radius: 1. }.into(),
-                        material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
-                        emission: Some(AreaLight { emitted_color: Spectrum::default() })
-                    }.into(),
-                    GeometricPrimitive {
-                        shape: SphereShape { object_to_world: s2, radius: 1. }.into(),
-                        material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 20. }.into()),
-                        emission: None
-                    }.into(),
-                    GeometricPrimitive {
-                        shape: SphereShape { object_to_world: s3, radius: 1. }.into(),
-                        material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 50. }.into()),
-                        emission: None
-                    }.into(),
-                    GeometricPrimitive {
-                        shape: SphereShape { object_to_world: s4, radius: 1. }.into(),
-                        material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 80. }.into()),
-                        emission: None
-                    }.into(),
-                ]
+                primitives: prims,
             }
         ),
         vec![

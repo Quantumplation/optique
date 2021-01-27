@@ -110,6 +110,13 @@ impl<T: Sub<Output = T>> Sub for Point3<T> {
     Self::Output { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
   }
 }
+impl<T: Sub<Output = T>> Sub<Vector3<T>> for Point3<T> {
+  type Output = Point3<T>;
+
+  fn sub(self, rhs: Vector3<T>) -> Self::Output {
+    Self::Output { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
+  }
+}
 
 impl<T: Mul<T, Output = T> + Copy> Mul<T> for Point2<T> {
   type Output = Self;
