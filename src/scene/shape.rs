@@ -1,11 +1,11 @@
 use enum_dispatch::enum_dispatch;
 
-use crate::geometry::{Bounds3, ErrorFloat, InteractionCommon, MulWithError, Normal3, PI, Point3, Ray, SurfaceInteraction, Transform, Vector3, gamma};
+use crate::geometry::{Bounds3, ErrorFloat, Intersection, MulWithError, Normal3, PI, Point3, Ray, Transform, Vector3, gamma};
 
 #[enum_dispatch]
 pub trait Shape {
   fn bounds(&self) -> Bounds3<f64>;
-  fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction>;
+  fn intersect(&self, ray: &Ray) -> Option<Intersection>;
   fn any_intersect(&self, ray: &Ray) -> bool { self.intersect(ray).is_some() }
 }
 #[enum_dispatch(Shape)]
@@ -18,7 +18,7 @@ pub struct NullShape {}
 
 impl Shape for NullShape {
     fn bounds(&self) -> Bounds3<f64> { Bounds3::default() }
-    fn intersect(&self, _ray: &Ray) -> Option<SurfaceInteraction> { None }
+    fn intersect(&self, _ray: &Ray) -> Option<Intersection> { None }
 }
 
 pub struct SphereShape {
@@ -28,7 +28,7 @@ pub struct SphereShape {
 
 impl Shape for SphereShape {
   fn bounds(&self) -> Bounds3<f64> { Bounds3::default() }
-  fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
+  fn intersect(&self, ray: &Ray) -> Option<Intersection> {
     let world_to_object = self.object_to_world.inverse();
     let (ray, err) = world_to_object.mul_with_error(*ray);
 
@@ -131,19 +131,16 @@ impl Shape for SphereShape {
 
     let error = Vector3::from(point_hit).abs() * gamma(5);
 
-    Some(SurfaceInteraction {
-      common: InteractionCommon {
-        point: self.object_to_world * point_hit, // Make sure to translate the point back to world coordinates
-        point_derivative: (dpdu, dpdv),
-        reverse_ray: -ray.direction,
-        normal,
-        normal_derivative: (dndu, dndv),
-        shading_normal: normal,
-        shading_normal_derivative: (dndu, dndv),
-        intersection_time: t_collision.value,
-        error,
-      },
-      emissive_properties: None,
+    Some(Intersection {
+      point: self.object_to_world * point_hit, // Make sure to translate the point back to world coordinates
+      point_derivative: (dpdu, dpdv),
+      outgoing: -ray.direction,
+      normal,
+      normal_derivative: (dndu, dndv),
+      shading_normal: normal,
+      shading_normal_derivative: (dndu, dndv),
+      distance: t_collision.value,
+      error,
     })
   }
 }

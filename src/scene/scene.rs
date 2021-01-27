@@ -1,4 +1,4 @@
-use crate::{geometry::{Bounds3, Ray, SurfaceInteraction, Transform, Vector3}, render::Spectrum};
+use crate::{geometry::{Bounds3, Interaction, Ray, Transform, Vector3}, render::Spectrum};
 
 use super::{AreaLight, GeometricPrimitive, Light, LightInstance, Primitive, PrimitiveInstance, ShapeInstance, SphereShape};
 
@@ -31,13 +31,14 @@ impl Scene {
     Scene::new(
       PrimitiveInstance::from(GeometricPrimitive {
         shape: ShapeInstance::from(SphereShape { object_to_world: Transform::translate( Vector3 { x: 0., y: 0., z: -10. } ), radius: 2. }),
+        material: None,
         emission: Some(AreaLight { emitted_color: Spectrum { r: 0.3, g: 0., b: 0. } }),
       }),
       scene.lights.iter().map(LightInstance::from).collect(),
     )
   }
 
-  pub fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
+  pub fn intersect(&self, ray: &Ray) -> Option<Interaction> {
     self.root.intersect(&ray)
   }
 

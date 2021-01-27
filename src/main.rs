@@ -10,7 +10,7 @@ use clap::Clap;
 use geometry::{Bounds2, Point2, Point3, Transform, Vector3};
 use options::*;
 use render::*;
-use scene::{AreaLight, GeometricPrimitive, LightInstance, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
+use scene::{AreaLight, GeometricPrimitive, LightInstance, Matte, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
 
 fn main() {
     let options: Options = Options::parse();
@@ -39,10 +39,12 @@ fn main() {
                 primitives: vec![
                     PrimitiveInstance::from(GeometricPrimitive {
                         shape: ShapeInstance::from(SphereShape { object_to_world: s1, radius: 4. }),
+                        material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
                         emission: Some(AreaLight { emitted_color: Spectrum::default() })
                     }),
                     PrimitiveInstance::from(GeometricPrimitive {
                         shape: ShapeInstance::from(SphereShape { object_to_world: s2, radius: 1. }),
+                        material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
                         emission: None
                     }),
                 ]

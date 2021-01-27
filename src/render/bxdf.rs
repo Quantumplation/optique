@@ -1,10 +1,11 @@
 use std::{sync::Arc};
 
 use bitflags::bitflags;
+use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
 
 use super::{Fresnel, Spectrum};
-use crate::geometry::{INV_PI, Normal3, Point2, SurfaceInteraction, Vector3};
+use crate::geometry::{INV_PI, Intersection, Normal3, Point2, Vector3};
 
 mod shading_coordinates {
   use crate::geometry::Vector3;
@@ -25,7 +26,7 @@ mod shading_coordinates {
 pub const MAX_BXDF: usize = 8;
 /// Bidirectional Scattering Distribution Function
 /// Represents the data needed to compute how light scatters on a surface
-pub struct BSDF {
+pub struct BSDF<'a> {
   /// A relative index describing how much light bends at the boundary
   /// Should be 1 for opaque objects
   index_of_refraction: f64,
@@ -40,28 +41,28 @@ pub struct BSDF {
   /// The number of surface properties that have been added
   num_components: usize,
   /// The components of the scattering function
-  components: [Option<BxDFInstance>; MAX_BXDF],
+  components: [Option<&'a BxDFInstance>; MAX_BXDF],
 }
 
-impl BSDF {
-  pub fn new(interaction: &SurfaceInteraction, index_of_refraction: f64) -> Self {
-    let shading_normal = interaction.common.shading_normal;
-    let tangent_s = interaction.common.shading_normal_derivative.0.normalized();
+impl<'a> BSDF<'a> {
+  pub fn new<'b: 'a>(arena: &'b Bump, intersection: &Intersection, index_of_refraction: f64) -> &'a mut Self {
+    let shading_normal = intersection.shading_normal;
+    let tangent_s = intersection.shading_normal_derivative.0.normalized();
     let tangent_t = shading_normal.cross(tangent_s);
-    Self {
+    arena.alloc(Self {
       index_of_refraction,
-      geometric_normal: interaction.common.normal,
+      geometric_normal: intersection.normal,
       shading_normal,
       tangent_s: tangent_s.into(),
       tangent_t: tangent_t.into(), 
       num_components: 0,
       components: Default::default(),
-    }
+    })
   }
 }
 
 struct BxDFIterator<'a> {
-  components: &'a [Option<BxDFInstance>],
+  components: &'a [Option<&'a BxDFInstance>],
   curr: usize,
   category: BxDFCategory
 }
@@ -88,7 +89,7 @@ impl<'a> Iterator for BxDFIterator<'a> {
   }
 }
 
-impl BSDF {
+impl<'a> BSDF<'a> {
   pub fn evaluate(&self, outgoing_world: Vector3, incoming_world: Vector3, category: BxDFCategory) -> Spectrum {
     let incoming = self.transform_world_to_local(incoming_world);
     let outgoing = self.transform_world_to_local(outgoing_world);
@@ -228,7 +229,7 @@ impl BSDF {
     return pdf;
   }
 
-  pub fn add_component(&mut self, bxdf: BxDFInstance) {
+  pub fn add_component(&mut self, bxdf: &'a mut BxDFInstance) {
     self.components[self.num_components] = Some(bxdf);
     self.num_components += 1;
   }

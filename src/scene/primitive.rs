@@ -1,13 +1,12 @@
 
 use enum_dispatch::enum_dispatch;
-use crate::geometry::{Bounds3, Ray, SurfaceInteraction};
+use crate::{geometry::{Bounds3, Ray, Interaction}};
 
-use super::{AreaLight, Shape, ShapeInstance};
+use super::{AreaLight, MaterialInstance, Shape, ShapeInstance};
 #[enum_dispatch]
 pub trait Primitive {
   fn bounds(&self) -> Bounds3<f64>;
-  fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction>;
-  fn emissive_properties(&self) -> Option<AreaLight>;
+  fn intersect(&self, ray: &Ray) -> Option<Interaction>;
 }
 
 #[enum_dispatch(Primitive)]
@@ -23,36 +22,31 @@ impl Primitive for NullPrimitive {
   fn bounds(&self) -> Bounds3<f64> {
     Bounds3::default()
   }
-
-  fn intersect(&self, _ray: &Ray) -> Option<SurfaceInteraction> {
-    None
-  }
-  fn emissive_properties(&self) -> Option<AreaLight> {
+  fn intersect(&self, _ray: &Ray) -> Option<Interaction> {
     None
   }
 }
 
 pub struct GeometricPrimitive {
   pub shape: ShapeInstance,
+  pub material: Option<MaterialInstance>,
   pub emission: Option<AreaLight>,
 }
+
 
 impl Primitive for GeometricPrimitive {
   fn bounds(&self) -> Bounds3<f64> {
     self.shape.bounds()
   }
 
-  fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
-    self.shape.intersect(ray).map(|interaction| {
-      SurfaceInteraction {
-        emissive_properties: self.emissive_properties(),
-        ..interaction
+  fn intersect(&self, ray: &Ray) -> Option<Interaction> {
+    self.shape.intersect(ray).map(|intersection| {
+      Interaction {
+        intersection,
+        emission: self.emission.clone(),
+        material: self.material.clone(),
       }
     }) 
-  }
-
-  fn emissive_properties(&self) -> Option<AreaLight> {
-    self.emission.clone()
   }
 }
 
@@ -65,21 +59,17 @@ impl Primitive for PrimitiveList {
       Bounds3::default()
     }
 
-    fn intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
+    fn intersect(&self, ray: &Ray) -> Option<Interaction> {
         let mut min_dist = -1.;
         let mut min_interaction = None;
         for p in &self.primitives {
           if let Some(i) = p.intersect(ray) {
-            if min_dist < 0. || i.common.intersection_time < min_dist {
-              min_dist = i.common.intersection_time;
+            if min_dist < 0. || i.intersection.distance < min_dist {
+              min_dist = i.intersection.distance;
               min_interaction = Some(i);
             }
           }
         }
         min_interaction
-    }
-
-    fn emissive_properties(&self) -> Option<AreaLight> {
-      None
     }
 }

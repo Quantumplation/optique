@@ -1,16 +1,52 @@
-use enum_dispatch::enum_dispatch;
+use bumpalo::Bump;
 
-#[enum_dispatch]
+use crate::{geometry::{Intersection}, render::{BSDF, BxDFInstance, LambertianReflection, Spectrum}};
+
+pub enum TransportMode {
+  Radiance,
+  Importance
+}
+
 pub trait Material {
+    fn compute_scattering_functions<'a>(&'a self, intersection: &Intersection, arena: &'a Bump, transport_mode: TransportMode, allow_multiple_lobes: bool) -> &'a mut BSDF;
 }
 
-#[enum_dispatch(Material)]
+#[derive(Clone, Copy)]
 pub enum MaterialInstance {
-  NullMaterial,
+  Matte(Matte),
 }
 
-pub struct NullMaterial {
+impl From<Matte> for MaterialInstance {
+  fn from(m: Matte) -> Self {
+    MaterialInstance::Matte(m)
+  }
 }
 
-impl Material for NullMaterial {
+// Can't use enum_dispatch because of lifetime parameters
+impl Material for MaterialInstance {
+  fn compute_scattering_functions<'a>(&'a self, intersection: &Intersection, arena: &'a Bump, mode: TransportMode, allow_multiple_lobes: bool) -> &'a mut BSDF {
+    match self {
+      MaterialInstance::Matte(m) => m.compute_scattering_functions(intersection, arena, mode, allow_multiple_lobes)
+    }
+  }
+}
+
+#[derive(Clone, Copy)]
+pub struct Matte {
+  // TODO: Textures
+  pub color: Spectrum,
+  pub roughness: f64,
+}
+
+impl Material for Matte {
+  fn compute_scattering_functions<'a>(&'a self, intersection: &Intersection, arena: &'a Bump, _mode: TransportMode, allow_multiple_lobes: bool) -> &'a mut BSDF {
+    let bsdf = BSDF::new(arena, intersection, 1.);
+    if self.roughness == 0. {
+      let lambert = arena.alloc(BxDFInstance::from(LambertianReflection { scattered_color: self.color }));
+      bsdf.add_component(lambert);
+    } else {
+      // TODO: OrenNavar
+    }
+    return bsdf;
+  }
 }
