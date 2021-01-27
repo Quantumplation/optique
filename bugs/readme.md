@@ -13,4 +13,4 @@ Similar to the progress folder, this folder documents interesting or entertainin
 |<img src="./005_occlusion.png" width="100" height="100">    | 2021-01-21T00:13 | Occlusion testing is failing, meaning I'm not casting shadows properly.  The green is intentional, all points that are occluded.
 |<img src="./006_lambert.png" width="100" height="100">      | 2021-01-25T21:22 | While implementing fresnel/reflection models, lambertian reflection gives an odd result.
 |<img src="./007_singularities.png" width="100" height="100">| 2021-01-26T00:37 | There are odd singularities in sphere normals
-|<img src="./008_triangle.png" width="100" height="100">     | 2021-01-27T03:33 | There are odd collision testing issues with triangles
+|<img src="./008_triangle.png" width="100" height="100">     | 2021-01-27T03:33 | There are odd collision testing issues with triangles.  Likely FP error for the occlusion ray
