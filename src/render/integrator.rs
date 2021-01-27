@@ -79,6 +79,7 @@ impl<T: SamplerIntegrator> Integrator for T {
     for pixel in bounds {
       sampler.start_pixel(&pixel);
       loop {
+
         // Choose a random ray to project along
         let camera_sample = sampler.get_camera_sample(pixel);
         let (weight, mut ray) = camera.generate_ray_differential(&camera_sample);

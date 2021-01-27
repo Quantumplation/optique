@@ -46,6 +46,14 @@ impl Normal3 {
     let len = self.length();
     Normal3 { x: self.x / len, y: self.y / len, z: self.z / len }
   }
+  
+  pub fn face_with(&self, other: &Normal3) -> Normal3 {
+    if self.dot(*other) < 0. {
+      -*self
+    } else {
+      *self
+    }
+  }
 }
 
 impl<T> From<Vector3<T>> for Normal3<T> {

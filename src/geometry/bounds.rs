@@ -1,9 +1,9 @@
 use super::{Point2, Point3};
 
 #[derive(Default, Copy, Clone, Debug)]
-pub struct Bounds3<T> {
-  min: Point3<T>,
-  max: Point3<T>,
+pub struct Bounds3<T = f64> {
+  pub min: Point3<T>,
+  pub max: Point3<T>,
 }
 
 #[derive(Default, Copy, Clone, Debug)]

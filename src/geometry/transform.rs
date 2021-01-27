@@ -1,6 +1,6 @@
 use std::{ops::Mul};
 
-use super::{Matrix4x4, Normal3, Point3, Ray, TO_RADIANS, Vector3, gamma};
+use super::{Intersection, Matrix4x4, Normal3, Point3, Ray, TO_RADIANS, Vector3, gamma};
 
 #[derive(Default, Copy, Clone)]
 pub struct Transform {
@@ -31,6 +31,37 @@ impl Transform {
        [0., 0., 0., 1.]
       ];
     Transform::new(Matrix4x4::new(m), Some(Matrix4x4::new(inv)))
+  }
+  
+  pub fn rotate(angle_degrees: f64, axis: Vector3) -> Transform {
+    let axis = axis.normalized();
+    let sin_theta = (angle_degrees * TO_RADIANS).sin();
+    let cos_theta = (angle_degrees * TO_RADIANS).cos();
+    let rotated_x = [
+      axis.x * axis.x + (1. - axis.x * axis.x) * cos_theta,
+      axis.x * axis.y * (1. - cos_theta) - axis.z * sin_theta,
+      axis.x * axis.z * (1. - cos_theta) + axis.y * sin_theta,
+      0.
+    ];
+    let rotated_y = [
+      axis.x * axis.y * (1. - cos_theta) + axis.z * sin_theta,
+      axis.y * axis.y + (1. - axis.y * axis.y) * cos_theta,
+      axis.y * axis.z * (1. - cos_theta) - axis.x * sin_theta,
+      0.,
+    ];
+    let rotated_z = [
+      axis.x * axis.z * (1. - cos_theta) - axis.y * sin_theta,
+      axis.y * axis.z * (1. - cos_theta) + axis.x * sin_theta,
+      axis.z * axis.z + (1. - axis.z * axis.z) * cos_theta,
+      0.,
+    ];
+    let m = [
+      rotated_x,
+      rotated_y,
+      rotated_z,
+      [0., 0., 0., 1.],
+    ];
+    Transform::new(Matrix4x4::new(m), Some(Matrix4x4::transpose(m)))
   }
 
   pub fn scale(axis: Vector3) -> Self {
@@ -173,6 +204,25 @@ impl Mul<Ray> for Transform {
       origin,
       direction,
       time_max: rhs.time_max,
+    }
+  }
+}
+
+impl Mul<Intersection> for Transform {
+  type Output = Intersection;
+
+  fn mul(self, i: Intersection) -> Self::Output {
+    let (point, error) = self.mul_with_error_in(i.point, i.error);
+    let normal = (self * i.normal).normalized();
+    Self::Output {
+      point, error,
+      point_derivative: (self * i.point_derivative.0, self * i.point_derivative.1),
+      outgoing: (self * i.outgoing).normalized(),
+      normal,
+      normal_derivative: (self * i.normal_derivative.0, self * i.normal_derivative.1),
+      shading_normal: (self * i.shading_normal).face_with(&normal),
+      shading_normal_derivative: (self * i.shading_normal_derivative.0, self * i.shading_normal_derivative.1),
+      distance: i.distance, // TODO: this isn't technically correct
     }
   }
 }

@@ -20,6 +20,15 @@ impl Matrix4x4 {
   pub fn new(m: [[f64; 4]; 4]) -> Self {
     Matrix4x4 { m }
   }
+  pub fn transpose(t: [[f64; 4]; 4]) -> Self {
+    let mut m = [[0.; 4]; 4];
+    for i in 0..4 {
+      for j in 0..4 {
+        m[i][j] = t[j][i];
+      }
+    }
+    Matrix4x4{ m }
+  }
 
   pub fn from_parts(
     m_1_1: f64, m_1_2: f64, m_1_3: f64, m_1_4: f64,

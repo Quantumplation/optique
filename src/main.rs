@@ -10,7 +10,7 @@ use clap::Clap;
 use geometry::{Bounds2, Point2, Point3, Transform, Vector3};
 use options::*;
 use render::*;
-use scene::{AreaLight, GeometricPrimitive, LightInstance, Matte, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
+use scene::{AreaLight, DiskShape, GeometricPrimitive, LightInstance, Matte, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape};
 
 fn main() {
     let options: Options = Options::parse();
@@ -30,6 +30,9 @@ fn main() {
         unimplemented!("Reading multiple files is currently unimplemented!");
     };
     
+    let s0 =
+        Transform::translate(Vector3 { x: 0., y: -1., z: -5. }) *
+        Transform::rotate(270., Vector3::new(1., 0., 0.));
     let s1 = Transform::translate(Vector3 { x: 3.75, y: 0., z: -7. });
     let s2 = Transform::translate(Vector3 { x: 1.25, y: 0., z: -7. });
     let s3 = Transform::translate(Vector3 { x: -1.25, y: 0., z: -7. });
@@ -39,31 +42,36 @@ fn main() {
         PrimitiveInstance::from(
             PrimitiveList {
                 primitives: vec![
-                    PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { object_to_world: s1, radius: 1. }),
+                    GeometricPrimitive {
+                        shape: DiskShape { object_to_world: s0, height: 0., radius: 20., inner_radius: 1.}.into(),
+                        material: Some(Matte { color: Spectrum { r: 0.8, g: 0.3, b: 0.2 }, roughness: 0. }.into()),
+                        emission: None,
+                    }.into(),
+                    GeometricPrimitive {
+                        shape: SphereShape { object_to_world: s1, radius: 1. }.into(),
                         material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
                         emission: Some(AreaLight { emitted_color: Spectrum::default() })
-                    }),
-                    PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { object_to_world: s2, radius: 1. }),
+                    }.into(),
+                    GeometricPrimitive {
+                        shape: SphereShape { object_to_world: s2, radius: 1. }.into(),
                         material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 20. }.into()),
                         emission: None
-                    }),
-                    PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { object_to_world: s3, radius: 1. }),
+                    }.into(),
+                    GeometricPrimitive {
+                        shape: SphereShape { object_to_world: s3, radius: 1. }.into(),
                         material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 50. }.into()),
                         emission: None
-                    }),
-                    PrimitiveInstance::from(GeometricPrimitive {
-                        shape: ShapeInstance::from(SphereShape { object_to_world: s4, radius: 1. }),
+                    }.into(),
+                    GeometricPrimitive {
+                        shape: SphereShape { object_to_world: s4, radius: 1. }.into(),
                         material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 80. }.into()),
                         emission: None
-                    }),
+                    }.into(),
                 ]
             }
         ),
         vec![
-            LightInstance::from(PointLight { position: Point3 { x: 0., y: 0., z: 10. }, color: Spectrum { r: 200., g: 200., b: 200. } }),
+            LightInstance::from(PointLight { position: Point3 { x: -2., y: 5., z: 3. }, color: Spectrum { r: 200., g: 200., b: 200. } }),
         ],
     );
 
