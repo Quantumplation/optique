@@ -1,6 +1,8 @@
+use std::f64::consts;
+
 use enum_dispatch::enum_dispatch;
 
-use crate::geometry::{Bounds3, ErrorFloat, Intersection, MulWithError, Normal3, PI, Point3, Ray, Transform, Vector3, gamma};
+use crate::geometry::{Bounds3, ErrorFloat, Intersection, MulWithError, Normal3, Point3, Ray, Transform, Vector3, gamma};
 
 #[enum_dispatch]
 pub trait Shape {
@@ -76,11 +78,10 @@ impl Shape for SphereShape {
       point_hit.x = 1e-10 * self.radius;
     }
 
-    let two_pi = 2. * PI;
-    let max_phi = two_pi;
-    let max_theta = two_pi;
+    let max_phi = consts::TAU;
+    let max_theta = consts::TAU;
     let phi = point_hit.y.atan2(point_hit.x);
-    let phi = if phi < 0. { phi + two_pi } else { phi };
+    let phi = if phi < 0. { phi + consts::TAU } else { phi };
 
     let u = phi / max_phi;
     let theta = (point_hit.z / self.radius).clamp(-1., 1.).acos();

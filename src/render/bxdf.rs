@@ -1,11 +1,11 @@
-use std::{sync::Arc};
+use std::{f64::consts::FRAC_1_PI, sync::Arc};
 
 use bitflags::bitflags;
 use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
 
 use super::{Fresnel, Spectrum};
-use crate::geometry::{INV_PI, Intersection, Normal3, Point2, Vector3};
+use crate::geometry::{Intersection, Normal3, Point2, Vector3};
 
 mod shading_coordinates {
   use crate::geometry::Vector3;
@@ -329,7 +329,7 @@ pub trait BxDF {
   }
   fn probability_distribution(&self, outgoing: Vector3, incoming: Vector3) -> f64 {
     if shading_coordinates::same_hemisphere(incoming, outgoing) {
-      shading_coordinates::abs_cos_theta(incoming) * INV_PI
+      shading_coordinates::abs_cos_theta(incoming) * FRAC_1_PI
     } else {
       0.
     }
@@ -411,7 +411,7 @@ impl BxDF for LambertianReflection {
     }
 
     fn evaluate(&self, _o: Vector3, _i: Vector3) -> Spectrum {
-        self.scattered_color * INV_PI
+        self.scattered_color * FRAC_1_PI
     }
 
     fn hemispherical_directional_reflectance(&self, _o: Vector3, _s: &[Point2]) -> Spectrum {
