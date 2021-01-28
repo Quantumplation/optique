@@ -42,6 +42,36 @@ impl Bounds3 {
       2
     }
   }
+  
+  pub fn any_intersect_precomputed(&self, ray: &Ray, inv_dir: Vector3, is_neg: [usize; 3]) -> bool {
+    let bounds = [self.min, self.max];
+    // Check for collisions with the x and y slabs
+    let tx_min = (bounds[is_neg[0]].x - ray.origin.x) * inv_dir.x;
+    let tx_max = (bounds[1 - is_neg[0]].x - ray.origin.x) * inv_dir.x;
+    let ty_min = (bounds[is_neg[1]].y - ray.origin.y) * inv_dir.y;
+    let ty_max = (bounds[1 - is_neg[1]].y - ray.origin.y) * inv_dir.y;
+
+    // Update to account for floating point error
+    let tx_max = tx_max * (1. + 2. * gamma(3));
+    let ty_max = ty_max * (1. + 2. * gamma(3));
+
+    if tx_min > ty_max || ty_min > tx_max { return false; }
+    let t_min = tx_min.max(ty_min);
+    let t_max = tx_max.min(ty_max);
+
+    // Check against the z slabs
+    let tz_min = (bounds[is_neg[2]].z - ray.origin.z) * inv_dir.z;
+    let tz_max = (bounds[1 - is_neg[2]].z - ray.origin.z) * inv_dir.z;
+
+    let tz_max = tz_max * (1. + 2. * gamma(3));
+
+    if t_min > tz_max || tz_min > t_max { return false; }
+
+    let t_min = t_min.max(tz_min);
+    let t_max = t_max.min(tz_max);
+
+    return t_min < ray.time_max && t_max > 0.;
+  }
 }
 
 #[derive(Default, Copy, Clone, Debug)]
