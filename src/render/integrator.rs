@@ -69,6 +69,7 @@ impl<T: SamplerIntegrator> Integrator for T {
     self.preprocess(scene);
     // TODO: Parallel tiles
 
+
     // We use a bump arena to efficiently drop temporary allocations on the floor
     let mut arena = Bump::new();
 
