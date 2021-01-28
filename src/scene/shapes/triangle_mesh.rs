@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{geometry::{Intersection, Normal3, Point3, Ray, Transform, Vector3}, scene::{Shape, ShapeInstance}};
+use crate::{geometry::{Intersection, Normal3, Point3, Ray, Transform, Vector3, gamma}, scene::{Shape, ShapeInstance}};
 
 pub struct TriangleMesh {
   pub indices: Vec<usize>,
@@ -153,6 +153,13 @@ impl Shape for TriangleShape {
     let b2 = e2 * inv_determinant;
     let time_hit = scaled_t * inv_determinant;
     
+    // Compute the error bounds on the intersection point
+    let x_err = (b0 * p0.x).abs() + (b1 * p1.x).abs() + (b2 * p2.x).abs();
+    let y_err = (b0 * p0.y).abs() + (b1 * p1.y).abs() + (b2 * p2.y).abs();
+    let z_err = (b0 * p0.z).abs() + (b1 * p1.z).abs() + (b2 * p2.z).abs();
+    let error: Vector3 = Vector3::new(x_err, y_err, z_err) * gamma(7);
+    
+    
     let point_hit: Point3 = p0 * b0 + p1 * b1 + p2 * b2;
 
     let dp02 = Vector3::from(p0 - p2);
@@ -162,7 +169,7 @@ impl Shape for TriangleShape {
 
     return Some(Intersection {
       point: point_hit,
-      error: Vector3::default(), // TODO
+      error,
       distance: time_hit,
       normal: normal,
       normal_derivative: (Normal3::default(), Normal3::default()),
