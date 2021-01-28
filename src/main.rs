@@ -1,4 +1,4 @@
-#![feature(try_blocks, clamp)]
+#![feature(try_blocks, clamp, partition_point)]
 
 mod geometry;
 mod options;
@@ -12,7 +12,7 @@ use geometry::{Bounds2, Normal3, Point2, Point3, Transform, Vector3};
 use options::*;
 use ply::read_ply;
 use render::*;
-use scene::{AreaLight, DiskShape, GeometricPrimitive, LightInstance, Matte, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape, TriangleMesh};
+use scene::{AreaLight, BVHAggregate, BVHNode, DiskShape, GeometricPrimitive, LightInstance, Matte, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape, SplitMethod, TriangleMesh};
 
 fn main() {
     let options: Options = Options::parse();
@@ -45,12 +45,11 @@ fn main() {
 
     let mesh = Arc::new(read_ply(s0, "scenes/bunny/bun.ply".into()));
     let tris = mesh.to_triangles();
-    let mut prims: Vec<PrimitiveInstance> = vec![];
-    // tris.into_iter().map(|t| GeometricPrimitive {
-    //     shape: t,
-    //     emission: None,
-    //     material: Some(Matte { color: Spectrum { r: 0.5, g: 0.7, b: 0.7 }, roughness: 0. }.into()),
-    // }.into()).collect();
+    let mut prims: Vec<PrimitiveInstance> = tris.into_iter().map(|t| GeometricPrimitive {
+        shape: t,
+        emission: None,
+        material: Some(Matte { color: Spectrum { r: 0.5, g: 0.7, b: 0.7 }, roughness: 0. }.into()),
+    }.into()).collect();
 
     prims.append(&mut vec![
         GeometricPrimitive {
@@ -80,12 +79,10 @@ fn main() {
         }.into(),
     ]);
 
+    let bvh = BVHAggregate::new(prims, 100, SplitMethod::Middle);
+
     let scene = Scene::new(
-        PrimitiveInstance::from(
-            PrimitiveList {
-                primitives: prims,
-            }
-        ),
+        bvh.into(),
         vec![
             LightInstance::from(PointLight { position: Point3 { x: -2., y: 5., z: 3. }, color: Spectrum { r: 200., g: 200., b: 200. } }),
         ],
@@ -105,7 +102,7 @@ fn main() {
         )),
         SamplerInstance::from(NullSampler {}),
     );
-
+        
     println!("Starting...");
     let start = Instant::now();
 
