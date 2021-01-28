@@ -1,6 +1,6 @@
 use std::{ops::Mul};
 
-use super::{Intersection, Matrix4x4, Normal3, Point3, Ray, TO_RADIANS, Vector3, gamma};
+use super::{Bounds3, Intersection, Matrix4x4, Normal3, Point3, Ray, TO_RADIANS, Vector3, gamma};
 
 #[derive(Default, Copy, Clone)]
 pub struct Transform {
@@ -224,6 +224,22 @@ impl Mul<Intersection> for Transform {
       shading_normal_derivative: (self * i.shading_normal_derivative.0, self * i.shading_normal_derivative.1),
       distance: i.distance, // TODO: this isn't technically correct
     }
+  }
+}
+
+impl Mul<Bounds3> for Transform {
+  type Output = Bounds3;
+  fn mul(self, rhs: Bounds3) -> Self::Output {
+    // Transform each corner of the bounding box, and enclose all of them
+    let min = self * rhs.min;
+    Bounds3::new(min, min)
+      .encompass(self * Point3::new(rhs.max.x, rhs.min.y, rhs.min.z))
+      .encompass(self * Point3::new(rhs.min.x, rhs.max.y, rhs.min.z))
+      .encompass(self * Point3::new(rhs.min.x, rhs.min.y, rhs.max.z))
+      .encompass(self * Point3::new(rhs.min.x, rhs.max.y, rhs.max.z))
+      .encompass(self * Point3::new(rhs.max.x, rhs.max.y, rhs.min.z))
+      .encompass(self * Point3::new(rhs.max.x, rhs.min.y, rhs.max.z))
+      .encompass(self * rhs.max)
   }
 }
 
