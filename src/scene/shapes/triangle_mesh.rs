@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{geometry::{Intersection, Normal3, Point3, Ray, Transform, Vector3, gamma}, scene::{Shape, ShapeInstance}};
+use crate::{geometry::{Bounds3, Intersection, Normal3, Point3, Ray, Transform, Vector3, gamma}, scene::{Shape, ShapeInstance}};
 
 pub struct TriangleMesh {
   pub indices: Vec<usize>,
@@ -61,8 +61,15 @@ impl TriangleShape {
 }
                       
 impl Shape for TriangleShape {
-  fn bounds(&self) -> crate::geometry::Bounds3<f64> {
-    todo!()
+  fn object_to_world(&self) -> Transform {
+      Transform::default() // We're already in world coordiantes
+  }
+  fn bounds(&self) -> Bounds3 {
+    todo!();
+  }
+  fn world_bounds(&self) -> Bounds3 {
+    let (p0, p1, p2) = self.vertices();
+    Bounds3::new(p0, p1).encompass(p2)
   }
 
   fn intersect(&self, ray: &crate::geometry::Ray) -> Option<crate::geometry::Intersection> {

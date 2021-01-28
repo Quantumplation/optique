@@ -9,7 +9,15 @@ pub struct SphereShape {
 }
 
 impl Shape for SphereShape {
-  fn bounds(&self) -> Bounds3<f64> { Bounds3::default() }
+  fn object_to_world(&self) -> Transform {
+    self.object_to_world
+  }
+  fn bounds(&self) -> Bounds3<f64> {
+    Bounds3::new(
+      Point3::new(-self.radius, -self.radius, -self.radius),
+      Point3::new(self.radius, self.radius, self.radius),
+    )
+  }
   fn intersect(&self, ray: &Ray) -> Option<Intersection> {
     let world_to_object = self.object_to_world.inverse();
     let (ray, err) = world_to_object.mul_with_error(*ray);

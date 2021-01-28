@@ -10,6 +10,9 @@ pub struct DiskShape {
 }
 
 impl Shape for DiskShape {
+  fn object_to_world(&self) -> Transform {
+      self.object_to_world
+  }
   fn bounds(&self) -> crate::geometry::Bounds3 {
     Bounds3 {
       min: Point3 { x: -self.radius, y: -self.radius, z: self.height },

@@ -5,7 +5,7 @@ use crate::{geometry::{Bounds3, Ray, Interaction}};
 use super::{AreaLight, MaterialInstance, Shape, ShapeInstance};
 #[enum_dispatch]
 pub trait Primitive {
-  fn bounds(&self) -> Bounds3<f64>;
+  fn world_bounds(&self) -> Bounds3<f64>;
   fn intersect(&self, ray: &Ray) -> Option<Interaction>;
 }
 
@@ -19,7 +19,7 @@ pub enum PrimitiveInstance {
 pub struct NullPrimitive {}
 
 impl Primitive for NullPrimitive {
-  fn bounds(&self) -> Bounds3<f64> {
+  fn world_bounds(&self) -> Bounds3<f64> {
     Bounds3::default()
   }
   fn intersect(&self, _ray: &Ray) -> Option<Interaction> {
@@ -33,10 +33,9 @@ pub struct GeometricPrimitive {
   pub emission: Option<AreaLight>,
 }
 
-
 impl Primitive for GeometricPrimitive {
-  fn bounds(&self) -> Bounds3<f64> {
-    self.shape.bounds()
+  fn world_bounds(&self) -> Bounds3<f64> {
+    self.shape.world_bounds()
   }
 
   fn intersect(&self, ray: &Ray) -> Option<Interaction> {
@@ -55,8 +54,8 @@ pub struct PrimitiveList {
 }
 
 impl Primitive for PrimitiveList {
-    fn bounds(&self) -> Bounds3<f64> {
-      Bounds3::default()
+    fn world_bounds(&self) -> Bounds3<f64> {
+      Bounds3::default() // TODO
     }
 
     fn intersect(&self, ray: &Ray) -> Option<Interaction> {

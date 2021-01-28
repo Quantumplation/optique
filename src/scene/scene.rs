@@ -12,7 +12,7 @@ pub struct Scene {
 #[allow(dead_code)]
 impl Scene {
   pub fn new(root: PrimitiveInstance, lights: Vec<LightInstance>) -> Scene {
-    let world_bounds = root.bounds();
+    let world_bounds = root.world_bounds();
     let mut scene = Scene {
       lights: vec![],
       root,
