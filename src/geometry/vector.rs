@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::{Add, Div, Index, Mul, Neg, Sub};
 
 use super::{Normal3, Point2, Point3};
 
@@ -63,6 +63,19 @@ impl<T> From<Point2<T>> for Vector2<T> {
 impl<T> From<Point3<T>> for Vector3<T> {
   fn from(p: Point3<T>) -> Self {
     Vector3 { x: p.x, y: p.y, z: p.z }
+  }
+}
+
+impl<T> Index<u8> for Vector3<T> {
+  type Output = T;
+
+  fn index(&self, index: u8) -> &Self::Output {
+    match index {
+      0 => &self.x,
+      1 => &self.y,
+      2 => &self.z,
+      _ => panic!("Invalid axis"),
+    }
   }
 }
 

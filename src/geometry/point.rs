@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, Div, Index, Mul, Sub};
 
 use float_next_after::NextAfter;
 
@@ -27,6 +27,28 @@ pub struct Point3<T = f64> {
 impl<T> Point3<T> {
   pub fn new(x: T, y: T, z: T) -> Self {
     Point3 { x, y, z }
+  }
+}
+  
+impl<T> Index<u8> for Point3<T> {
+  type Output = T;
+
+  fn index(&self, index: u8) -> &Self::Output {
+    match index {
+      0 => &self.x,
+      1 => &self.y,
+      2 => &self.z,
+      _ => panic!("Invalid dimension"),
+    }
+  }
+}
+
+impl Point3 {
+  pub fn min(&self, other: &Self) -> Self {
+    Point3 { x: self.x.min(other.x), y: self.y.min(other.y), z: self.z.min(other.z) }
+  }
+  pub fn max(&self, other: &Self) -> Self {
+    Point3 { x: self.x.max(other.x), y: self.y.max(other.y), z: self.z.max(other.z) }
   }
 }
 
