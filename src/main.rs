@@ -5,7 +5,7 @@ mod options;
 mod render;
 mod scene;
 mod ply;
-use std::{path::PathBuf, sync::Arc, unimplemented};
+use std::{path::PathBuf, sync::Arc, time::Instant, unimplemented};
 
 use clap::Clap;
 use geometry::{Bounds2, Normal3, Point2, Point3, Transform, Vector3};
@@ -39,43 +39,46 @@ fn main() {
     let s2 = Transform::translate(Vector3 { x: 1.25, y: 0., z: -7. });
     let s3 = Transform::translate(Vector3 { x: -1.25, y: 0., z: -7. });
     let s4 = Transform::translate(Vector3 { x: -3.75, y: 0., z: -7. });
-    let s5 = Transform::translate(Vector3::new(-1.5, 0., -5.));
+    let s5 =
+        Transform::translate(Vector3::new(0., -1., -5.)) *
+        Transform::rotate(90., Vector3::new(1., 0., 0.));
 
     let mesh = Arc::new(read_ply(s0, "scenes/bunny/bun.ply".into()));
     let tris = mesh.to_triangles();
-    let mut prims: Vec<PrimitiveInstance> = tris.into_iter().map(|t| GeometricPrimitive {
-        shape: t,
-        emission: None,
-        material: Some(Matte { color: Spectrum { r: 0.5, g: 0.7, b: 0.7 }, roughness: 0. }.into()),
-    }.into()).collect();
+    let mut prims: Vec<PrimitiveInstance> = vec![];
+    // tris.into_iter().map(|t| GeometricPrimitive {
+    //     shape: t,
+    //     emission: None,
+    //     material: Some(Matte { color: Spectrum { r: 0.5, g: 0.7, b: 0.7 }, roughness: 0. }.into()),
+    // }.into()).collect();
 
-    // prims.append(&mut vec![
-        // GeometricPrimitive {
-        //     shape: DiskShape { object_to_world: s0, height: 0., radius: 20., inner_radius: 1.}.into(),
-        //     material: Some(Matte { color: Spectrum { r: 0.8, g: 0.3, b: 0.2 }, roughness: 0. }.into()),
-        //     emission: None,
-        // }.into(),
-        // GeometricPrimitive {
-        //     shape: SphereShape { object_to_world: s1, radius: 1. }.into(),
-        //     material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
-        //     emission: Some(AreaLight { emitted_color: Spectrum::default() })
-        // }.into(),
-        // GeometricPrimitive {
-        //     shape: SphereShape { object_to_world: s2, radius: 1. }.into(),
-        //     material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 20. }.into()),
-        //     emission: None
-        // }.into(),
-        // GeometricPrimitive {
-        //     shape: SphereShape { object_to_world: s3, radius: 1. }.into(),
-        //     material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 50. }.into()),
-        //     emission: None
-        // }.into(),
-        // GeometricPrimitive {
-        //     shape: SphereShape { object_to_world: s4, radius: 1. }.into(),
-        //     material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 80. }.into()),
-        //     emission: None
-        // }.into(),
-    // ]);
+    prims.append(&mut vec![
+        GeometricPrimitive {
+            shape: DiskShape { object_to_world: s5, height: 0., radius: 20., inner_radius: 1.}.into(),
+            material: Some(Matte { color: Spectrum { r: 0.8, g: 0.3, b: 0.2 }, roughness: 0. }.into()),
+            emission: None,
+        }.into(),
+        GeometricPrimitive {
+            shape: SphereShape { object_to_world: s1, radius: 1. }.into(),
+            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
+            emission: None,
+        }.into(),
+        GeometricPrimitive {
+            shape: SphereShape { object_to_world: s2, radius: 1. }.into(),
+            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 20. }.into()),
+            emission: None
+        }.into(),
+        GeometricPrimitive {
+            shape: SphereShape { object_to_world: s3, radius: 1. }.into(),
+            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 50. }.into()),
+            emission: None
+        }.into(),
+        GeometricPrimitive {
+            shape: SphereShape { object_to_world: s4, radius: 1. }.into(),
+            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 80. }.into()),
+            emission: None
+        }.into(),
+    ]);
 
     let scene = Scene::new(
         PrimitiveInstance::from(
@@ -102,6 +105,13 @@ fn main() {
         )),
         SamplerInstance::from(NullSampler {}),
     );
+
+    println!("Starting...");
+    let start = Instant::now();
+
     i.render(&scene);
+
+    println!("Finished.  Took: {:.2}s", start.elapsed().as_secs_f64());
+
     i.camera.film().write_to(options.out_file.unwrap_or(PathBuf::from("./out.png")));
 }
