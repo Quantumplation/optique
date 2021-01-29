@@ -44,7 +44,7 @@ fn main() {
         Transform::translate(Vector3::new(0., -1., -5.)) *
         Transform::rotate(90., Vector3::new(1., 0., 0.));
 
-    let mesh = Arc::new(read_ply(s0, "scenes/bunny/bun_3.ply".into()));
+    let mesh = Arc::new(read_ply(s0, "scenes/bunny/bun.ply".into()));
     let tris = mesh.to_triangles();
     let mut prims: Vec<PrimitiveInstance> = tris.into_iter().map(|t| GeometricPrimitive {
         shape: t,
