@@ -4,12 +4,12 @@ use crate::geometry::Point2;
 
 #[enum_dispatch]
 pub trait Sampler {
-  fn start_pixel(&mut self, p: &Point2<i32>);
+  fn start_pixel(&mut self, p: &Point2<u32>);
   fn start_next(&mut self) -> bool;
   
   fn samples_per_pixel(&self) -> i64;
 
-  fn get_camera_sample(&self, raster_point: Point2<i32>) -> CameraSample {
+  fn get_camera_sample(&self, raster_point: Point2<u32>) -> CameraSample {
     CameraSample {
       film_point: Point2::<f64>::from(raster_point) + Point2::default(),
       lens_point: Point2::default(),
@@ -34,7 +34,7 @@ pub enum SamplerInstance {
 pub struct NullSampler {}
 
 impl Sampler for NullSampler {
-  fn start_pixel(&mut self, _: &Point2<i32>) {}
+  fn start_pixel(&mut self, _: &Point2<u32>) {}
   fn start_next(&mut self) -> bool { false }
   fn samples_per_pixel(&self) -> i64 { 0 }
 }
@@ -47,7 +47,7 @@ pub struct RandomSampler {
 }
 
 impl Sampler for RandomSampler {
-  fn start_pixel(&mut self, _: &Point2<i32>) {
+  fn start_pixel(&mut self, _: &Point2<u32>) {
     self.current_sample = 0;
   }
   fn start_next(&mut self) -> bool {

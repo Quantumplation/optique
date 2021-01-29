@@ -76,8 +76,8 @@ impl Point3 {
   }
 }
 
-impl From<Point2<i32>> for Point2 {
-  fn from(p: Point2<i32>) -> Self {
+impl From<Point2<u32>> for Point2 {
+  fn from(p: Point2<u32>) -> Self {
     Self { x: p.x as f64, y: p.y as f64 }
   }
 }

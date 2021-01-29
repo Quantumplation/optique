@@ -7,20 +7,20 @@ use crate::geometry::{Bounds2, Point2};
 use super::Spectrum;
 
 pub struct Film {
-  pub resolution: Point2<i32>,
+  pub resolution: Point2<u32>,
   pub pixels: RwLock<Vec<Spectrum>>,
 }
 
 impl Film {
-  pub fn new(resolution: Point2<i32>) -> Self {
+  pub fn new(resolution: Point2<u32>) -> Self {
     assert!(resolution.x > 0 && resolution.y > 0, "Must have positive resolution");
     let pixels = RwLock::new(vec![Spectrum::default(); (resolution.x * resolution.y) as usize]);
     Self { resolution, pixels }
   }
-  pub fn bounds(&self) -> Bounds2<i32> {
+  pub fn bounds(&self) -> Bounds2<u32> {
     Bounds2 { min: Default::default(), max: self.resolution }
   }
-  pub fn add_sample(&self, pixel: Point2<i32>, value: Spectrum, _weight: f64) {
+  pub fn add_sample(&self, pixel: Point2<u32>, value: Spectrum, _weight: f64) {
     let idx = pixel.y * self.resolution.x + pixel.x;
     let mut pixels = self.pixels.write().unwrap();
     pixels[idx as usize] = value;

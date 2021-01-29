@@ -81,12 +81,12 @@ pub struct Bounds2<T> {
 }
   
 pub struct PixelIterator {
-  pub bounds: Bounds2<i32>,
-  pub curr: Point2<i32>,
+  pub bounds: Bounds2<u32>,
+  pub curr: Point2<u32>,
 }
   
 impl Iterator for PixelIterator {
-  type Item = Point2<i32>;
+  type Item = Point2<u32>;
 
   fn next(&mut self) -> Option<Self::Item> {
     self.curr.x += 1;
@@ -102,8 +102,8 @@ impl Iterator for PixelIterator {
   }
 }
 
-impl IntoIterator for Bounds2<i32> {
-  type Item = Point2<i32>;
+impl IntoIterator for Bounds2<u32> {
+  type Item = Point2<u32>;
   type IntoIter = PixelIterator;
 
   fn into_iter(self) -> Self::IntoIter {

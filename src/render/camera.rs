@@ -8,7 +8,7 @@ use super::{CameraSample, Film};
 
 #[enum_dispatch]
 pub trait Camera {
-    fn bounds(&self) -> Bounds2<i32>;
+    fn bounds(&self) -> Bounds2<u32>;
     fn film(&self) -> Arc<Film>;
     fn generate_ray(&self, sample: &CameraSample) -> (f64, Ray);
 
@@ -114,7 +114,7 @@ impl PerspectiveCamera {
 }
 
 impl Camera for PerspectiveCamera {
-  fn bounds(&self) -> Bounds2<i32> {
+  fn bounds(&self) -> Bounds2<u32> {
     self.film.bounds()
   }
   fn film(&self) -> Arc<Film> {
