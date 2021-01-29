@@ -1,7 +1,8 @@
 use bumpalo::Bump;
 
-use crate::{geometry::{Intersection}, render::{BSDF, BxDFInstance, LambertianReflection, OrenNayar, Spectrum}};
+use crate::{geometry::{Intersection}, render::{BSDF, BxDFInstance, Fresnel, LambertianReflection, OrenNayar, Spectrum, SpecularTransmission}};
 
+#[derive(Clone)]
 pub enum TransportMode {
   Radiance,
   Importance
@@ -39,10 +40,14 @@ pub struct Matte {
 }
 
 impl Material for Matte {
-  fn compute_scattering_functions<'a>(&'a self, intersection: &Intersection, arena: &'a Bump, _mode: TransportMode, allow_multiple_lobes: bool) -> &'a mut BSDF {
+  fn compute_scattering_functions<'a>(&'a self, intersection: &Intersection, arena: &'a Bump, mode: TransportMode, allow_multiple_lobes: bool) -> &'a mut BSDF {
     let bsdf = BSDF::new(arena, intersection, 1.);
     if self.roughness == 0. {
-      let lambert = arena.alloc(BxDFInstance::from(LambertianReflection { scattered_color: self.color }));
+      let lambert = arena.alloc(SpecularTransmission::new(
+        self.color,
+        (1., 1.5),
+        mode
+      ).into());
       bsdf.add_component(lambert);
     } else {
       let oren_nayar = arena.alloc(BxDFInstance::from(OrenNayar::new(self.color, self.roughness)));

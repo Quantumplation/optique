@@ -4,7 +4,7 @@ use bitflags::bitflags;
 use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
 
-use super::{Fresnel, Spectrum, bxdfs::{LambertianReflection, OrenNayar, SpecularReflection}};
+use super::{Fresnel, Spectrum, bxdfs::{LambertianReflection, OrenNayar, SpecularReflection, SpecularTransmission}};
 use crate::geometry::{Intersection, Normal3, Point2, Vector3};
 
 /// Some optimized computations that only work in local (s,t,n) shading coordinates
@@ -380,6 +380,7 @@ pub trait BxDF {
 pub enum BxDFInstance {
   ScaledBxDF,
   SpecularReflection,
+  SpecularTransmission,
   LambertianReflection,
   OrenNayar,
 }

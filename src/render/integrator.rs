@@ -58,7 +58,35 @@ pub trait SamplerIntegrator {
     }
     return Spectrum::default();
   }
-  fn specular_transmit(&self, rd: RayDifferential, intersection: Intersection, scene: &Scene, sampler: &SamplerInstance, arena: &Bump, depth: u32) -> Spectrum;
+  fn specular_transmit(
+    &self,
+    rd: RayDifferential,
+    intersection: Intersection,
+    bsdf: &BSDF,
+    scene: &Scene,
+    sampler: &SamplerInstance,
+    arena: &Bump,
+    depth: u32
+  ) -> Spectrum {
+    let outgoing = intersection.outgoing;
+    let sample = bsdf.sample_function(outgoing, &Point2::new(0.5, 0.5), BxDFCategory::TRANSMISSION | BxDFCategory::SPECULAR);
+
+    let normal = intersection.shading_normal;
+    let incoming = sample.incoming;
+    let pdf = sample.probability_distribution;
+    let color_sample = sample.value;
+
+    let factor = incoming.dot(normal.into()).abs();
+    if pdf > 0. && !color_sample.is_black() && factor != 0. {
+      let rd = RayDifferential {
+        ray: Ray { origin: intersection.point, direction: incoming, time_max: rd.ray.time_max },
+        ray_x: rd.ray_x, // TODO: compute these
+        ray_y: rd.ray_y,
+      };
+      return color_sample * self.light_along_ray(rd, scene, sampler, arena, depth + 1) * factor / pdf;
+    }
+    return Spectrum::black();
+  }
 
   fn get_camera(&mut self) -> Arc<CameraInstance>;
   fn get_sampler(&self, seed: u64) -> SamplerInstance;
@@ -193,13 +221,10 @@ impl SamplerIntegrator for WhittedIntegrator {
     // And trace more bounces
     if depth + 1 < self.max_depth {
       result += self.specular_reflect(rd, interaction.intersection, bsdf, scene, sampler, arena, depth);
+      result += self.specular_transmit(rd, interaction.intersection, bsdf, scene, sampler, arena, depth);
     }
 
     return result;
-  }
-
-  fn specular_transmit(&self, _rd: RayDifferential, _intersection: Intersection, _scene: &Scene, _sampler: &SamplerInstance, _arena: &Bump, _depth: u32) -> Spectrum {
-    todo!()
   }
 
   fn get_camera(&mut self) -> Arc<CameraInstance> { self.camera.clone() }

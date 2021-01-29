@@ -15,6 +15,12 @@ pub enum RadianceProblems {
 
 const LUMINANCE_WEIGHT: [f64; 3] = [0.212_671, 0.715_160, 0.072_169];
 impl Spectrum {
+  pub fn white() -> Spectrum {
+    Spectrum::greyscale(1.)
+  }
+  pub fn black() -> Spectrum {
+    Spectrum::default()
+  }
   pub fn greyscale(f: f64) -> Spectrum {
     Spectrum { r: f, g: f, b: f }
   }

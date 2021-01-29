@@ -44,20 +44,21 @@ fn main() {
         Transform::translate(Vector3::new(0., -1., -5.)) *
         Transform::rotate(90., Vector3::new(1., 0., 0.));
 
-    let mesh = Arc::new(read_ply(s0, "scenes/bunny/bun.ply".into()));
+    let mesh = Arc::new(read_ply(s0, "scenes/bunny/bun_3.ply".into()));
     let tris = mesh.to_triangles();
-    let mut prims: Vec<PrimitiveInstance> = tris.into_iter().map(|t| GeometricPrimitive {
-        shape: t,
-        emission: None,
-        material: Some(Matte { color: Spectrum { r: 0.5, g: 0.7, b: 0.7 }, roughness: 0. }.into()),
-    }.into()).collect();
+    let mut prims: Vec<PrimitiveInstance> = vec![];
+    // tris.into_iter().map(|t| GeometricPrimitive {
+    //     shape: t,
+    //     emission: None,
+    //     material: Some(Matte { color: Spectrum { r: 0.5, g: 0.7, b: 0.7 }, roughness: 0. }.into()),
+    // }.into()).collect();
 
     prims.append(&mut vec![
-        GeometricPrimitive {
-            shape: DiskShape { object_to_world: s5, height: 0., radius: 20., inner_radius: 1.}.into(),
-            material: Some(Matte { color: Spectrum { r: 0.8, g: 0.3, b: 0.2 }, roughness: 0. }.into()),
-            emission: None,
-        }.into(),
+        // GeometricPrimitive {
+        //     shape: DiskShape { object_to_world: s5, height: 0., radius: 20., inner_radius: 1.}.into(),
+        //     material: Some(Matte { color: Spectrum { r: 0.8, g: 0.3, b: 0.2 }, roughness: 1. }.into()),
+        //     emission: None,
+        // }.into(),
         GeometricPrimitive {
             shape: SphereShape { object_to_world: s1, radius: 1. }.into(),
             material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
@@ -65,17 +66,17 @@ fn main() {
         }.into(),
         GeometricPrimitive {
             shape: SphereShape { object_to_world: s2, radius: 1. }.into(),
-            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 20. }.into()),
+            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
             emission: None
         }.into(),
         GeometricPrimitive {
             shape: SphereShape { object_to_world: s3, radius: 1. }.into(),
-            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 50. }.into()),
+            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
             emission: None
         }.into(),
         GeometricPrimitive {
             shape: SphereShape { object_to_world: s4, radius: 1. }.into(),
-            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 80. }.into()),
+            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
             emission: None
         }.into(),
     ]);
@@ -91,7 +92,7 @@ fn main() {
     );
 
     let cam_trans = Transform::look_at(
-        Point3 { x: 3., y: 5.0, z: 2. },
+        Point3 { x: 10., y: 3.0, z: -4. },
         Point3 { x: 0., y: 0., z: -7. },
         Vector3 { x: 0., y: 1., z: 0. }
     ).inverse();

@@ -15,3 +15,4 @@ Similar to the progress folder, this folder documents interesting or entertainin
 |<img src="./007_singularities.png" width="100" height="100">| 2021-01-26T00:37 | There are odd singularities in sphere normals
 |<img src="./008_triangle.png" width="100" height="100">     | 2021-01-27T03:33 | There are odd collision testing issues with triangles.  Likely FP error for the occlusion ray
 |<img src="./009_bvh.png" width="100" height="100">          | 2021-01-28T04:11 | This weird eldritch horror came up when implementing bounding-volume-hierarchy aggregators
+|<img src="./010_neg_lum.png" width="100" height="100">      | 2021-01-29T03:17 | Implemented transmission, and I get a ton of negative luminance
