@@ -52,10 +52,10 @@ fn fresnel_dialectric(
   eta_perpendicular: f64,
 ) -> Spectrum {
   let cos_incident = cos_incident.clamp(-1., 1.);
-  let (eta_parallel, eta_perpendicular) = if cos_incident > 0. {
-    (eta_perpendicular, eta_parallel)
+  let (cos_incident, eta_parallel, eta_perpendicular) = if cos_incident > 0. {
+    (cos_incident, eta_perpendicular, eta_parallel)
   } else {
-    (eta_parallel, eta_perpendicular)
+    (cos_incident.abs(), eta_parallel, eta_perpendicular)
   };
 
   let sin_incident_sq = 1. - cos_incident * cos_incident;

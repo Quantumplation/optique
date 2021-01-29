@@ -20,5 +20,6 @@ This folder has screenshots of various milestones in the development of the deve
 |<img src="./012_orennayar.png" width="100" height="100"> | 2021-01-26T20:54 | Implemented Oren-nayar microfacet, to control roughness
 |<img src="./013_disk.png" width="100" height="100">      | 2021-01-26T23:47 | Implemented disk collision
 |<img src="./014_bunbun.png" width="100" height="100">    | 2021-01-27T19:18 | Triangle meshes, and the stanford bunny! (180+ seconds to render!)
-|<img src="./015_bunaccel.png" width="100" height="100">  | 2021-01-27T21:56 | Triangle meshes, now accelerated by a BVH! (4 seconds to render!)
-|<img src="./016_fullresbun.png" width="100" height="100">| 2021-01-27T22:48 | Full res bun.  47 seconds to render in release mode.
+|<img src="./015_bunaccel.png" width="100" height="100">  | 2021-01-28T21:56 | Triangle meshes, now accelerated by a BVH! (4 seconds to render!)
+|<img src="./016_fullresbun.png" width="100" height="100">| 2021-01-28T22:48 | Full res bun.  47 seconds to render in release mode.
+|<img src="./017_earlytrans.png" width="100" height="100">| 2021-01-29T22:48 | First pass at pure transmission.  Things are really dark because I don't have lots of lights, and I'm not mixing it correctly.
