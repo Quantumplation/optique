@@ -261,15 +261,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "float_next_after"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fc612c5837986b7104a87a0df74a5460931f1c5274be12f8d0f40aa2f30d632"
-dependencies = [
- "num-traits",
-]
-
-[[package]]
 name = "fuchsia-cprng"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -520,7 +511,6 @@ dependencies = [
  "bumpalo",
  "clap",
  "enum_dispatch",
- "float_next_after",
  "image",
  "pbrt_rs",
 ]

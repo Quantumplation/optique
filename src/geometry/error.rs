@@ -1,6 +1,6 @@
 use std::{ops::{Add, Div, Mul, Neg, Sub}};
 
-use float_next_after::NextAfter;
+use crate::utils::{next_down, next_up};
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ErrorFloat {
@@ -8,9 +8,6 @@ pub struct ErrorFloat {
   pub low: f64,
   pub high: f64,
 }
-
-pub const UP: f64 = f64::INFINITY;
-pub const DOWN: f64 = f64::NEG_INFINITY;
 
 pub fn gamma(n: u32) -> f64 {
   let n = n as f64;
@@ -24,8 +21,8 @@ impl ErrorFloat {
     } else {
       Self {
         value,
-        low: (value - error).next_after(DOWN),
-        high: (value + error).next_after(UP),
+        low: next_down(value - error),
+        high: next_up(value + error),
       }
     }
   }
@@ -33,13 +30,13 @@ impl ErrorFloat {
   pub fn absolute_error(&self) -> f64 {
     let err_high = (self.high - self.value).abs();
     let err_low = (self.value - self.low).abs();
-    err_high.max(err_low).next_after(UP)
+    next_up(err_high.max(err_low))
   }
 
   pub fn sqrt(&self) -> Self {
     let value = self.value.sqrt();
-    let low = self.low.sqrt().next_after(DOWN);
-    let high = self.high.sqrt().next_after(UP);
+    let low = next_down(self.low.sqrt());
+    let high = next_up(self.high.sqrt());
     Self { value, low, high }
   }
 
@@ -95,8 +92,8 @@ impl Add for ErrorFloat {
   type Output = Self;
   fn add(self, other: Self) -> Self::Output {
     let value = self.value + other.value;
-    let low = (self.low + other.low).next_after(DOWN);
-    let high = (self.high + other.high).next_after(UP);
+    let low = next_down(self.low + other.low);
+    let high = next_up(self.high + other.high);
     Self::Output { value, low, high }
   }
 }
@@ -113,8 +110,8 @@ impl Sub for ErrorFloat {
   type Output = Self;
   fn sub(self, other: Self) -> Self::Output {
     let value = self.value - other.value;
-    let low = (self.low - other.high).next_after(DOWN);
-    let high = (self.high - other.low).next_after(UP);
+    let low = next_down(self.low - other.high);
+    let high = next_up(self.high - other.low);
     Self::Output { value, low, high }
   }
 }
@@ -138,8 +135,8 @@ impl Mul for ErrorFloat {
 
     let min = err_products[0].min(err_products[1]).min(err_products[2]).min(err_products[3]);
     let max = err_products[0].max(err_products[1]).max(err_products[2]).max(err_products[3]);
-    let low = min.next_after(DOWN);
-    let high = max.next_after(UP);
+    let low = next_down(min);
+    let high = next_up(max);
     Self::Output { value, low, high }
   }
 }
@@ -168,8 +165,8 @@ impl Div for ErrorFloat {
 
     let min = err_quots[0].min(err_quots[1]).min(err_quots[2]).min(err_quots[3]);
     let max = err_quots[0].max(err_quots[1]).max(err_quots[2]).max(err_quots[3]);
-    let low = min.next_after(DOWN);
-    let high = max.next_after(UP);
+    let low = next_down(min);
+    let high = next_up(max);
     Self::Output { value, low, high }
   }
 }

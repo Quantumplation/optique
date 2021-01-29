@@ -1,8 +1,8 @@
 use std::ops::{Add, Div, Index, Mul, Sub};
 
-use float_next_after::NextAfter;
+use crate::utils::{next_down, next_up};
 
-use super::{DOWN, Normal3, UP, Vector2, Vector3};
+use super::{Normal3, Vector2, Vector3};
 
 #[derive(Default, Copy, Clone, Debug)]
 pub struct Point2<T = f64> {
@@ -63,14 +63,14 @@ impl Point3 {
 
     let mut origin = *self + offset;
     // Round the offset point away from p
-    if offset.x > 0. { origin.x = origin.x.next_after(UP); }
-    else if offset.x < 0. { origin.x = origin.x.next_after(DOWN); }
+    if offset.x > 0. { origin.x = next_up(origin.x); }
+    else if offset.x < 0. { origin.x = next_down(origin.x); }
 
-    if offset.y > 0. { origin.y = origin.y.next_after(UP); }
-    else if offset.y < 0. { origin.y = origin.y.next_after(DOWN); }
+    if offset.y > 0. { origin.y = next_up(origin.y); }
+    else if offset.y < 0. { origin.y = next_down(origin.y); }
 
-    if offset.z > 0. { origin.z = origin.z.next_after(UP); }
-    else if offset.z < 0. { origin.z = origin.z.next_after(DOWN); }
+    if offset.z > 0. { origin.z = next_up(origin.z); }
+    else if offset.z < 0. { origin.z = next_down(origin.z); }
     
     origin
   }

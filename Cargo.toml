@@ -12,5 +12,4 @@ enum_dispatch = "0.3.4"
 bumpalo = "3.4.0"
 image = "0.23.12"
 pbrt_rs = { git = "https://github.com/beltegeuse/pbrt_rs", commit = "7b409157" }
-float_next_after = "0.1.5"
 bitflags = "1.2.1"
