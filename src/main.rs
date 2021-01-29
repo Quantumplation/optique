@@ -33,7 +33,7 @@ fn main() {
     };
     
     let s0 =
-        Transform::translate(Vector3 { x: 0., y: -1., z: -5. }) *
+        Transform::translate(Vector3 { x: 1.4, y: -1.5, z: -5. }) *
         Transform::scale(Vector3 { x: 20., y: 20., z: 20. });
     let s1 = Transform::translate(Vector3 { x: 3.75, y: 0., z: -7. });
     let s2 = Transform::translate(Vector3 { x: 1.25, y: 0., z: -7. });
@@ -79,17 +79,18 @@ fn main() {
         }.into(),
     ]);
 
-    let bvh = BVHAggregate::new(prims, 100, SplitMethod::Middle);
+    let agg = BVHAggregate::new(prims, 100, SplitMethod::Middle);
+    // let agg = PrimitiveList { primitives: prims };
 
     let scene = Scene::new(
-        bvh.into(),
+        agg.into(),
         vec![
             LightInstance::from(PointLight { position: Point3 { x: -2., y: 5., z: 3. }, color: Spectrum { r: 200., g: 200., b: 200. } }),
         ],
     );
 
     let cam_trans = Transform::look_at(
-        Point3 { x: 0., y: 5.0, z: 5. },
+        Point3 { x: 3., y: 5.0, z: 2. },
         Point3 { x: 0., y: 0., z: -7. },
         Vector3 { x: 0., y: 1., z: 0. }
     ).inverse();

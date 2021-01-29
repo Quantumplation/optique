@@ -69,7 +69,9 @@ impl Shape for TriangleShape {
   }
   fn world_bounds(&self) -> Bounds3 {
     let (p0, p1, p2) = self.vertices();
-    Bounds3::new(p0, p1).encompass(p2)
+    Bounds3::new(p0, p0)
+      .encompass(p1)
+      .encompass(p2)
   }
 
   fn intersect(&self, ray: &crate::geometry::Ray) -> Option<crate::geometry::Intersection> {
