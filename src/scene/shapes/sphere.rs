@@ -67,13 +67,14 @@ impl Shape for SphereShape {
     }
 
     let max_phi = consts::TAU;
-    let max_theta = consts::TAU;
+    let min_theta = consts::PI;
+    let max_theta = 0.;
     let phi = point_hit.y.atan2(point_hit.x);
     let phi = if phi < 0. { phi + consts::TAU } else { phi };
 
     let u = phi / max_phi;
     let theta = (point_hit.z / self.radius).clamp(-1., 1.).acos();
-    let v = theta / max_theta;
+    let v = (theta - min_theta) / (max_theta - min_theta);
 
     // NOTE: compute for a given theta, what radius circle does a cross section of the circle make?
     let z_radius = (point_hit.x * point_hit.x + point_hit.y * point_hit.y).sqrt();
@@ -87,12 +88,12 @@ impl Shape for SphereShape {
       point_hit.z * cos_phi,
       point_hit.z * sin_phi,
       -radius.value * theta.sin()
-    ) * max_phi;
+    ) * (max_theta - min_theta);
 
     // Compute second order partial derivatives
     let d2pduu = Vector3::new(point_hit.x, point_hit.y, 0.) * -max_phi * max_phi;
-    let d2pduv = Vector3::new(-sin_phi, cos_phi, 0.) * max_theta * point_hit.z * max_phi;
-    let d2pdvv = Vector3::new(point_hit.x, point_hit.y, point_hit.z) * -max_theta * max_theta;
+    let d2pduv = Vector3::new(-sin_phi, cos_phi, 0.) * (max_theta - min_theta) * point_hit.z * max_phi;
+    let d2pdvv = Vector3::new(point_hit.x, point_hit.y, point_hit.z) * -(max_theta - min_theta) * (max_theta - min_theta);
 
     // Compute coefficients of the fundamental form, to compute partial derivatives of the normal
     let E = dpdu.dot(dpdu);
