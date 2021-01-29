@@ -130,8 +130,8 @@ impl<'a> Iterator for BxDFIterator<'a> {
 
 impl<'a> BSDF<'a> {
   pub fn evaluate(&self, outgoing_world: Vector3, incoming_world: Vector3, category: BxDFCategory) -> Spectrum {
-    let incoming = self.transform_world_to_local(incoming_world);
-    let outgoing = self.transform_world_to_local(outgoing_world);
+    let incoming = self.transform_world_to_shading(incoming_world);
+    let outgoing = self.transform_world_to_shading(outgoing_world);
 
     // Use the geometric normal to tell if we're doing reflection or transmission
     // (i.e. if things are in the same hemisphere) to prevent light leak
@@ -170,7 +170,7 @@ impl<'a> BSDF<'a> {
       sample.y,
     );
 
-    let outgoing = self.transform_world_to_local(outgoing_world);
+    let outgoing = self.transform_world_to_shading(outgoing_world);
     if outgoing.z == 0. {
       return empty_sample;
     }
@@ -181,7 +181,7 @@ impl<'a> BSDF<'a> {
       return empty_sample;
     }
 
-    let incoming_world = self.transform_local_to_world(sample.incoming);
+    let incoming_world = self.transform_shading_to_world(sample.incoming);
 
     let mut pdf = sample.probability_distribution;
     // If we chose something other than specular,
@@ -208,7 +208,7 @@ impl<'a> BSDF<'a> {
   }
 
   pub fn hemispherical_directional_reflectance(&self, outgoing_world: Vector3, samples: &[Point2], category: BxDFCategory) -> Spectrum {
-    let outgoing = self.transform_world_to_local(outgoing_world);
+    let outgoing = self.transform_world_to_shading(outgoing_world);
     let mut result = Spectrum::default();
     for component in self.matching_components(category) {
       result += component.hemispherical_directional_reflectance(outgoing, samples);
@@ -225,8 +225,8 @@ impl<'a> BSDF<'a> {
   }
 
   pub fn probability_distribution(&self, outgoing_world: Vector3, incoming_world: Vector3, category: BxDFCategory) -> f64 {
-    let outgoing = self.transform_world_to_local(outgoing_world);
-    let incoming = self.transform_world_to_local(incoming_world);
+    let outgoing = self.transform_world_to_shading(outgoing_world);
+    let incoming = self.transform_world_to_shading(incoming_world);
     self.probability_distribution_local(outgoing, incoming, category, (self.components.len(), 0.))
   }
 
@@ -281,7 +281,7 @@ impl<'a> BSDF<'a> {
     }
   }
 
-  fn transform_world_to_local(&self, v: Vector3) -> Vector3 {
+  fn transform_world_to_shading(&self, v: Vector3) -> Vector3 {
     let x = v.dot(self.tangent_s);
     let y = v.dot(self.tangent_t);
     let z = v.dot(self.shading_normal.into());
@@ -289,7 +289,7 @@ impl<'a> BSDF<'a> {
     Vector3 { x, y, z }
   }
 
-  fn transform_local_to_world(&self, v: Vector3) -> Vector3 {
+  fn transform_shading_to_world(&self, v: Vector3) -> Vector3 {
     let (s, t, n) = (self.tangent_s, self.tangent_t, self.shading_normal);
     let x = s.x * v.x + t.x * v.y + n.x * v.z;
     let y = s.y * v.x + t.y * v.y + n.y * v.z;
