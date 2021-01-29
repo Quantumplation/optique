@@ -82,6 +82,7 @@ pub struct Bounds2<T> {
   
 pub struct PixelIterator {
   pub bounds: Bounds2<u32>,
+  pub first: bool,
   pub curr: Point2<u32>,
 }
   
@@ -89,7 +90,11 @@ impl Iterator for PixelIterator {
   type Item = Point2<u32>;
 
   fn next(&mut self) -> Option<Self::Item> {
-    self.curr.x += 1;
+    if !self.first {
+      self.curr.x += 1;
+    } else {
+      self.first = false;
+    }
     if self.curr.x == self.bounds.max.x {
       self.curr.x = self.bounds.min.x;
       self.curr.y += 1;
@@ -111,7 +116,8 @@ impl IntoIterator for Bounds2<u32> {
     // because we increment first thing in next
     PixelIterator {
       bounds: self,
-      curr: Point2 { x: self.min.x - 1, y: self.min.y }
+      first: true,
+      curr: Point2 { x: self.min.x, y: self.min.y }
     }
   }
 }
