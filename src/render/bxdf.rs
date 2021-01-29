@@ -4,11 +4,11 @@ use bitflags::bitflags;
 use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
 
-use super::{Fresnel, Spectrum};
-use crate::geometry::{Intersection, Normal3, Point2, TO_RADIANS, Vector3};
+use super::{Fresnel, Spectrum, bxdfs::{LambertianReflection, OrenNayar, SpecularReflection}};
+use crate::geometry::{Intersection, Normal3, Point2, Vector3};
 
 /// Some optimized computations that only work in local (s,t,n) shading coordinates
-mod shading_coordinates {
+pub mod shading_coordinates {
   use crate::geometry::Vector3;
 
   /// cosine of the angle the vector makes with the normal
@@ -396,125 +396,5 @@ impl BxDF for ScaledBxDF {
   }
   fn evaluate(&self, outgoing: Vector3, incoming: Vector3) -> Spectrum {
     self.scale * self.original.evaluate(outgoing, incoming)
-  }
-}
-
-#[derive(Clone)]
-pub struct SpecularReflection {
-  pub color_scale: Spectrum,
-  pub fresnel_properties: Fresnel,
-}
-
-impl BxDF for SpecularReflection {
-  fn category(&self) -> BxDFCategory {
-    BxDFCategory::SPECULAR | BxDFCategory::REFLECTION
-  }
-
-  fn evaluate(&self, _outgoing: Vector3<f64>, _incoming: Vector3<f64>) -> Spectrum {
-    // For perfect reflection, an arbitrary pair of directions returns no scattering
-    // Our sample function will handle picking the perfect incoming angle instead
-    Spectrum::default()
-  }
-
-  fn sample_function(&self, outgoing: Vector3<f64>, _sample: &Point2<f64>) -> BxDFSample {
-    let incoming = Vector3::new(-outgoing.x, -outgoing.y, outgoing.z);
-    let probability_distribution = 1.;
-
-    let cos_incident = shading_coordinates::cos_theta(incoming);
-    let scale = self.color_scale / cos_incident.abs();
-    let value = self.fresnel_properties.evaluate(cos_incident) * scale;
-
-    BxDFSample {
-      value,
-      incoming,
-      probability_distribution,
-      category: BxDFCategory::SPECULAR | BxDFCategory::REFLECTION,
-    }
-  }
-
-  fn probability_distribution(&self, _outgoing: Vector3<f64>, _incoming: Vector3<f64>) -> f64 {
-    0.
-  }
-}
-
-// TODO: SpecularTransmission, FresnelSpecular
-
-#[derive(Clone)]
-/// Represents light reflection that is perfectly uniformly scattered
-pub struct LambertianReflection {
-  pub scattered_color: Spectrum,
-}
-
-impl BxDF for LambertianReflection {
-    fn category(&self) -> BxDFCategory {
-        BxDFCategory::REFLECTION | BxDFCategory::DIFFUSE
-    }
-
-    fn evaluate(&self, _o: Vector3, _i: Vector3) -> Spectrum {
-        self.scattered_color * FRAC_1_PI
-    }
-
-    fn hemispherical_directional_reflectance(&self, _o: Vector3, _s: &[Point2]) -> Spectrum {
-        self.scattered_color
-    }
-    fn hemispherical_hemispherical_reflectance(&self, _s1: &[Point2], _s2: &[Point2]) -> Spectrum {
-        self.scattered_color
-    }
-}
-
-#[derive(Clone)]
-/// Oren-Nayar Microfacet simulation, based on a uniform distribution of v-shaped microfacets
-pub struct OrenNayar {
-  pub color: Spectrum,
-  /// From the Oren-Nayar microfacet equations
-  a: f64,
-  /// From the Oren-Nayar microfacet equations
-  b: f64,
-}
-
-impl OrenNayar {
-  pub fn new(color: Spectrum, angle_distribution: f64) -> Self {
-    // Precompute a and b, so we don't have to compute them every evaluation
-    let sigma = angle_distribution * TO_RADIANS;
-    let sigma_sq = sigma * sigma;
-    let a = 1. - (sigma_sq / (2. * (sigma + 0.33)));
-    let b = 0.45 * sigma_sq / (sigma_sq + 0.09);
-
-    OrenNayar { color, a, b }
-  }
-}
-
-impl BxDF for OrenNayar {
-  fn category(&self) -> BxDFCategory {
-    BxDFCategory::REFLECTION | BxDFCategory::DIFFUSE
-  }
-
-  fn evaluate(&self, outgoing: Vector3, incoming: Vector3) -> Spectrum {
-    use shading_coordinates::*;
-    let sin_theta_incoming = sin_theta(incoming);
-    let sin_theta_outgoing = sin_theta(outgoing);
-
-    let max_cos = if sin_theta_incoming > 1e-4 && sin_theta_outgoing > 1e-4 {
-      let sin_phi_incoming = sin_phi(incoming);
-      let cos_phi_incoming = cos_phi(incoming);
-      let sin_phi_outgoing = sin_phi(outgoing);
-      let cos_phi_outgoing = cos_phi(outgoing);
-
-      let d_cos = cos_phi_incoming * cos_phi_outgoing + sin_phi_incoming * sin_phi_outgoing;
-      d_cos.max(0.)
-    } else {
-      0.
-    };
-
-    let deviation_incoming = abs_cos_theta(incoming);
-    let deviation_outgoing = abs_cos_theta(outgoing);
-    let (sin_alpha, tan_beta) = if deviation_incoming > deviation_outgoing {
-      (sin_theta_outgoing, sin_theta_incoming / deviation_incoming)
-    } else {
-      (sin_theta_incoming, sin_theta_outgoing / deviation_outgoing)
-    };
-
-    let scatter_amount = FRAC_1_PI * (self.a + self.b * max_cos * sin_alpha * tan_beta);
-    return scatter_amount * self.color;
   }
 }

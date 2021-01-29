@@ -17,6 +17,7 @@ impl Ray {
   }
 }
 
+#[derive(Clone, Copy)]
 pub struct RayDifferential {
   pub ray: Ray,
   pub ray_x: Ray,
