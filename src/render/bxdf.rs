@@ -4,7 +4,19 @@ use bitflags::bitflags;
 use bumpalo::Bump;
 use enum_dispatch::enum_dispatch;
 
-use super::{Fresnel, Spectrum, bxdfs::{LambertianReflection, OrenNayar, SpecularReflection, SpecularTransmission}};
+use super::{
+  Spectrum,
+  bxdfs::{
+    SpecularReflection,
+    SpecularTransmission,
+    LambertianReflection,
+    LambertianTransmission,
+    OrenNayar,
+    MicrofacetReflection,
+    MicrofacetTransmission,
+    FresnelSpecular,
+  }
+};
 use crate::geometry::{Intersection, Normal3, Point2, Vector3};
 
 /// Some optimized computations that only work in local (s,t,n) shading coordinates
@@ -20,6 +32,10 @@ pub mod shading_coordinates {
   pub fn sin_theta(w: Vector3) -> f64 {
     sin_sq_theta(w).sqrt()
   }
+  
+  pub fn tan_theta(w: Vector3) -> f64 {
+    sin_theta(w) / cos_theta(w)
+  }
 
   /// square of the cosine of the angle the vector makes with the normal
   pub fn cos_sq_theta(w: Vector3) -> f64 {
@@ -29,6 +45,10 @@ pub mod shading_coordinates {
   /// square of the sine of the angle the vector makes with the normal
   pub fn sin_sq_theta(w: Vector3) -> f64 {
     (1. - cos_sq_theta(w)).max(0.)
+  }
+  
+  pub fn tan_sq_theta(w: Vector3) -> f64 {
+    sin_sq_theta(w) / cos_sq_theta(w)
   }
 
   /// consine of the angle the vector makes with the x axis
@@ -49,6 +69,13 @@ pub mod shading_coordinates {
     } else {
       (w.y / sin_theta).clamp(-1., 1.)
     }
+  }
+  
+  pub fn cos_sq_phi(w: Vector3) -> f64 {
+    cos_phi(w) * cos_phi(w)
+  }
+  pub fn sin_sq_phi(w: Vector3) -> f64 {
+    sin_phi(w) * sin_phi(w)
   }
 
   /// absolute value of the angle the vector makes with the normal
@@ -382,7 +409,11 @@ pub enum BxDFInstance {
   SpecularReflection,
   SpecularTransmission,
   LambertianReflection,
+  LambertianTransmission,
   OrenNayar,
+  MicrofacetReflection,
+  MicrofacetTransmission,
+  FresnelSpecular,
 }
 
 #[derive(Clone)]

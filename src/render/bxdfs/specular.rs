@@ -1,4 +1,44 @@
-use crate::{geometry::{Normal3, Point2, Vector3}, render::{shading_coordinates, BxDF, BxDFCategory, BxDFSample, Fresnel, Spectrum}, scene::TransportMode};
+use crate::{geometry::{Normal3, Point2, Vector3}, render::{BxDF, BxDFCategory, BxDFSample, Fresnel, Spectrum, shading_coordinates}, scene::TransportMode};
+
+
+#[derive(Clone)]
+pub struct SpecularReflection {
+  pub color_scale: Spectrum,
+  pub fresnel_properties: Fresnel,
+}
+
+impl BxDF for SpecularReflection {
+  fn category(&self) -> BxDFCategory {
+    BxDFCategory::SPECULAR | BxDFCategory::REFLECTION
+  }
+
+  fn evaluate(&self, _outgoing: Vector3<f64>, _incoming: Vector3<f64>) -> Spectrum {
+    // For perfect reflection, an arbitrary pair of directions returns no scattering
+    // Our sample function will handle picking the perfect incoming angle instead
+    Spectrum::default()
+  }
+
+  fn sample_function(&self, outgoing: Vector3<f64>, _sample: &Point2<f64>) -> BxDFSample {
+    let incoming = Vector3::new(-outgoing.x, -outgoing.y, outgoing.z);
+    let probability_distribution = 1.;
+
+    let cos_incident = shading_coordinates::cos_theta(incoming);
+    let scale = self.color_scale / cos_incident.abs();
+    let value = self.fresnel_properties.evaluate(cos_incident) * scale;
+
+    BxDFSample {
+      value,
+      incoming,
+      probability_distribution,
+      category: BxDFCategory::SPECULAR | BxDFCategory::REFLECTION,
+    }
+  }
+
+  fn probability_distribution(&self, _outgoing: Vector3<f64>, _incoming: Vector3<f64>) -> f64 {
+    0.
+  }
+}
+
 
 #[derive(Clone)]
 pub struct SpecularTransmission {
@@ -22,7 +62,7 @@ impl SpecularTransmission {
   }
 }
 
-fn refract(outgoing: Vector3, normal: Normal3, refraction: f64) -> Option<Vector3> {
+pub fn refract(outgoing: Vector3, normal: Normal3, refraction: f64) -> Option<Vector3> {
   let normal: Vector3 = normal.into();
   let cos_theta_parallel = normal.dot(outgoing);
   let sin_sq_theta_parallel = (1. - cos_theta_parallel * cos_theta_parallel).max(0.);

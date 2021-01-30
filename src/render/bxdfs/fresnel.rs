@@ -1,4 +1,6 @@
-use super::Spectrum;
+use crate::{geometry::{Normal3, Point2, Vector3}, render::{BxDF, BxDFCategory, BxDFSample, Spectrum, shading_coordinates::{abs_cos_theta, cos_theta}}, scene::TransportMode};
+
+use super::refract;
 
 #[derive(Clone)]
 pub enum Fresnel {
@@ -78,4 +80,74 @@ fn fresnel_dialectric(
   let r_perpendicular_sq = r_perpendicular * r_perpendicular;
 
   return Spectrum::greyscale((r_parallel_sq + r_perpendicular_sq) / 2.);
+}
+
+#[derive(Clone)]
+pub struct FresnelSpecular {
+  pub color_reflected: Spectrum,
+  pub color_transmitted: Spectrum,
+  pub refraction: (f64, f64),
+  pub mode: TransportMode,
+}
+
+impl BxDF for FresnelSpecular {
+  fn category(&self) -> BxDFCategory {
+    BxDFCategory::REFLECTION | BxDFCategory::TRANSMISSION | BxDFCategory::SPECULAR
+  }
+
+  fn evaluate(&self, outgoing: Vector3, incoming: Vector3) -> Spectrum {
+    return Spectrum::black();
+  }
+
+  fn sample_function(&self, outgoing: Vector3, sample: &Point2) -> BxDFSample {
+    let cos_theta_outgoing = cos_theta(outgoing);
+    let color_scale = fresnel_dialectric(cos_theta_outgoing, self.refraction.0, self.refraction.1);
+    if sample.x < color_scale.r {
+      let incoming = Vector3::new(-outgoing.x, -outgoing.y, outgoing.z);
+      let category = BxDFCategory::SPECULAR | BxDFCategory::REFLECTION;
+      let pdf = color_scale.r;
+      let value = color_scale * self.color_reflected / abs_cos_theta(incoming);
+      return BxDFSample {
+        value,
+        incoming,
+        probability_distribution: pdf,
+        category,
+      };
+    } else {
+      let (eta_parallel, eta_perpendicular) = if cos_theta_outgoing > 0. {
+        (self.refraction.0, self.refraction.1)
+      } else {
+        (self.refraction.1, self.refraction.0)
+      };
+      let refraction = eta_parallel / eta_perpendicular;
+
+      let normal = Normal3::new(0., 0., 1.).face_with(&outgoing.into());
+      let incoming = refract(outgoing, normal, refraction);
+      if incoming.is_none() {
+        return BxDFSample {
+          value: Spectrum::default(),
+          category: BxDFCategory::NONE,
+          incoming: Vector3::default(),
+          probability_distribution: 1.,
+        };
+      }
+      let incoming = incoming.unwrap();
+
+      let mut transmitted_light: Spectrum = self.color_transmitted * (Spectrum::white() - color_scale);
+
+      if matches!(self.mode, TransportMode::Radiance) {
+        transmitted_light = transmitted_light * refraction * refraction;
+      }
+
+      let category = BxDFCategory::SPECULAR | BxDFCategory::TRANSMISSION;
+      let pdf = 1. - color_scale.r;
+
+      return BxDFSample {
+        value: transmitted_light / abs_cos_theta(incoming),
+        category,
+        incoming,
+        probability_distribution: pdf,
+      };
+    }
+  }
 }

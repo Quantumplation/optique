@@ -13,7 +13,7 @@ use geometry::{Bounds2, Normal3, Point2, Point3, Transform, Vector3};
 use options::*;
 use ply::read_ply;
 use render::*;
-use scene::{AreaLight, BVHAggregate, BVHNode, DiskShape, GeometricPrimitive, LightInstance, Matte, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape, SplitMethod, TriangleMesh};
+use scene::{AreaLight, BVHAggregate, BVHNode, DiskShape, GeometricPrimitive, Glass, LightInstance, Matte, Mirror, Plastic, PointLight, PrimitiveInstance, PrimitiveList, Scene, ShapeInstance, SphereShape, SplitMethod, TriangleMesh};
 
 fn main() {
     let options: Options = Options::parse();
@@ -37,7 +37,9 @@ fn main() {
         Transform::translate(Vector3 { x: 1.4, y: -1.5, z: -5. }) *
         Transform::scale(Vector3 { x: 20., y: 20., z: 20. });
     let s1 = Transform::translate(Vector3 { x: 3.75, y: 0., z: -7. });
-    let s2 = Transform::translate(Vector3 { x: 1.25, y: 0., z: -7. });
+    let s2 = Transform::translate(Vector3 { x: 0., y: 3., z: -12. });
+    let s6 = Transform::translate(Vector3 { x:  1.25, y: 0., z: -7. });
+    let s7 = Transform::translate(Vector3 { x:  1.5, y: 0.5, z: -5. });
     let s3 = Transform::translate(Vector3 { x: -1.25, y: 0., z: -7. });
     let s4 = Transform::translate(Vector3 { x: -3.75, y: 0., z: -7. });
     let s5 =
@@ -54,29 +56,50 @@ fn main() {
     // }.into()).collect();
 
     prims.append(&mut vec![
-        // GeometricPrimitive {
-        //     shape: DiskShape { object_to_world: s5, height: 0., radius: 20., inner_radius: 1.}.into(),
-        //     material: Some(Matte { color: Spectrum { r: 0.8, g: 0.3, b: 0.2 }, roughness: 1. }.into()),
-        //     emission: None,
-        // }.into(),
+        GeometricPrimitive {
+            shape: DiskShape { object_to_world: s5, height: 0., radius: 20., inner_radius: 0.}.into(),
+            material: Some(Matte { color: Spectrum { r: 0.8, g: 0.8, b: 0.8 }, roughness: 1. }.into()),
+            emission: None,
+        }.into(),
         GeometricPrimitive {
             shape: SphereShape { object_to_world: s1, radius: 1. }.into(),
             material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
             emission: None,
         }.into(),
         GeometricPrimitive {
-            shape: SphereShape { object_to_world: s2, radius: 1. }.into(),
+            shape: SphereShape { object_to_world: s6, radius: 1. }.into(),
             material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
+            emission: None,
+        }.into(),
+        GeometricPrimitive {
+            shape: SphereShape { object_to_world: s2, radius: 5. }.into(),
+            material: Some(Mirror { color: Spectrum { r: 0.75, g: 0.75, b: 0.75 } }.into()),
+            emission: None
+        }.into(),
+        GeometricPrimitive {
+        shape: SphereShape { object_to_world: s7, radius: 0.5 }.into(),
+            material: Some(Glass {
+                color_reflected: Spectrum::white(),
+                color_transmitted: Spectrum::white(),
+                refraction: 1.575,
+                roughness: (0., 0.),
+                remap_roughness: false,
+            }.into()),
             emission: None
         }.into(),
         GeometricPrimitive {
             shape: SphereShape { object_to_world: s3, radius: 1. }.into(),
-            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
+            material: Some(Mirror { color: Spectrum { r: 0.623, g: 0.204, b: 0.788 } }.into()),
             emission: None
         }.into(),
         GeometricPrimitive {
             shape: SphereShape { object_to_world: s4, radius: 1. }.into(),
-            material: Some(Matte { color: Spectrum { r: 0.576, g: 0.859, b: 0.475 }, roughness: 0. }.into()),
+            material: Some(Plastic {
+                diffuse_reflection: Spectrum { r: 0.623, g: 0.204, b: 0.788 },
+                glossy_reflection: Spectrum { r: 0.725, g: 0.416, b: 0.851 },
+                roughness: 0.15,
+                remap_roughness: true,
+            }.into()),
             emission: None
         }.into(),
     ]);
@@ -87,12 +110,15 @@ fn main() {
     let scene = Scene::new(
         agg.into(),
         vec![
-            LightInstance::from(PointLight { position: Point3 { x: -2., y: 5., z: 3. }, color: Spectrum { r: 200., g: 200., b: 200. } }),
+            LightInstance::from(PointLight {
+                position: Point3 { x: -2., y: 5., z: 3. },
+                color: Spectrum { r: 170., g: 170., b: 200. }
+            }),
         ],
     );
 
     let cam_trans = Transform::look_at(
-        Point3 { x: 10., y: 3.0, z: -4. },
+        Point3 { x: 10., y: 3.0, z: -1. },
         Point3 { x: 0., y: 0., z: -7. },
         Vector3 { x: 0., y: 1., z: 0. }
     ).inverse();

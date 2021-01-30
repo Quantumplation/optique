@@ -1,8 +1,10 @@
-mod specular_reflect;
-mod specular_transmit;
+mod fresnel;
+mod specular;
 mod lambert;
 mod oren_nayar;
-pub use specular_reflect::*;
-pub use specular_transmit::*;
+mod microfacet;
+pub use fresnel::*;
+pub use specular::*;
 pub use lambert::*;
 pub use oren_nayar::*;
+pub use microfacet::*;
