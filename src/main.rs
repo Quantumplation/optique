@@ -39,7 +39,7 @@ fn main() {
     let s1 = Transform::translate(Vector3 { x: 3.75, y: 0., z: -7. });
     let s2 = Transform::translate(Vector3 { x: 0., y: 3., z: -12. });
     let s6 = Transform::translate(Vector3 { x:  1.25, y: 0., z: -7. });
-    let s7 = Transform::translate(Vector3 { x:  1.5, y: 0.5, z: -5. });
+    let s7 = Transform::translate(Vector3 { x:  0.5, y: 0., z: -5. });
     let s3 = Transform::translate(Vector3 { x: -1.25, y: 0., z: -7. });
     let s4 = Transform::translate(Vector3 { x: -3.75, y: 0., z: -7. });
     let s5 =
@@ -77,13 +77,13 @@ fn main() {
             emission: None
         }.into(),
         GeometricPrimitive {
-        shape: SphereShape { object_to_world: s7, radius: 0.5 }.into(),
+        shape: SphereShape { object_to_world: s7, radius: 1. }.into(),
             material: Some(Glass {
                 color_reflected: Spectrum::white(),
                 color_transmitted: Spectrum::white(),
-                refraction: 1.575,
+                refraction: 1.475,
                 roughness: (0., 0.),
-                remap_roughness: false,
+                remap_roughness: true,
             }.into()),
             emission: None
         }.into(),
@@ -111,23 +111,23 @@ fn main() {
         agg.into(),
         vec![
             LightInstance::from(PointLight {
-                position: Point3 { x: -2., y: 5., z: 3. },
-                color: Spectrum { r: 170., g: 170., b: 200. }
+                position: Point3 { x: 1., y: 7., z: 2. },
+                color: Spectrum { r: 300., g: 300., b: 300. }
             }),
         ],
     );
 
     let cam_trans = Transform::look_at(
-        Point3 { x: 10., y: 3.0, z: -1. },
+        Point3 { x: 10., y: 3.0, z: 3. },
         Point3 { x: 0., y: 0., z: -7. },
         Vector3 { x: 0., y: 1., z: 0. }
     ).inverse();
     let mut i = WhittedIntegrator::new(
         20,
         CameraInstance::from(PerspectiveCamera::new(
-            cam_trans, Bounds2 { min: Point2 { x: -0.5, y: -0.5 }, max: Point2 { x: 0.5, y: 0.5 } },
+            cam_trans, Bounds2 { min: Point2 { x: -1.0, y: -0.3 }, max: Point2 { x: 1.0, y: 0.3 } },
             0., 0., 0., 0., 75.,
-            Arc::new(Film::new(Point2 { x: 500, y: 500 }))
+            Arc::new(Film::new(Point2 { x: 1000, y: 300 }))
         )),
         SamplerInstance::from(NullSampler {}),
     );
